@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Shop iPhones — Just Cell It</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a href="index.html" class="logo">
+      <span class="bars"><span></span><span></span><span></span></span>
+      Just Cell It
+    </a>
+    <button class="menu-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false" aria-controls="site-nav">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="header-controls" id="site-nav">
+      <nav class="nav-links">
+        <a href="catalog.html">Shop iPhones</a>
+        <a href="index.html#how-it-works">How it works</a>
+      </nav>
+      <div class="nav-actions" id="nav-auth-slot"></div>
+    </div>
+  </div>
+</header>
+
+<section style="padding-top:48px;">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <h2>Available iPhones</h2>
+        <p>Prices include VAT. Stock shown live from our warehouse.</p>
+      </div>
+    </div>
+    <div class="grid" id="product-grid">
+      <!-- populated by js/catalog.js -->
+    </div>
+    <p id="empty-state" style="display:none; color: var(--muted);">Couldn't load products right now. Please refresh the page.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <span>© 2013 Just Cell It. Registered business.</span>
+    <span>Payments powered by Yoco</span>
+  </div>
+</footer>
+
+<script src="js/config.js"></script>
+<script src="js/catalog.js"></script>
+</body>
+</html>

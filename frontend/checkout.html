@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Checkout — Just Cell It</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a href="index.html" class="logo">
+      <span class="bars"><span></span><span></span><span></span></span>
+      Just Cell It
+    </a>
+    <button class="menu-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false" aria-controls="site-nav">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="header-controls" id="site-nav">
+      <nav class="nav-links">
+        <a href="catalog.html">Shop iPhones</a>
+      </nav>
+      <div class="nav-actions" id="nav-auth-slot"></div>
+    </div>
+  </div>
+</header>
+
+<section style="padding-top:48px;">
+  <div class="container">
+
+    <!-- Shown while reviewing the order, before redirecting to Yoco -->
+    <div id="order-view">
+      <div class="section-head">
+        <div>
+          <h2>Checkout</h2>
+          <p>Review your order, then pay securely with Yoco.</p>
+        </div>
+      </div>
+      <div class="checkout-grid">
+        <div class="summary-card" id="summary-card">
+          <p style="color: var(--muted);">Loading your order…</p>
+        </div>
+        <div class="pay-card">
+          <h3 style="margin-bottom: 6px;">Pay with Yoco</h3>
+          <p style="color: var(--muted); font-size: 0.9rem; margin-top: 0;">You'll be taken to Yoco's secure payment page to enter your card details and approve this exact amount.</p>
+          <button class="btn btn-primary btn-block" id="pay-btn">Pay Now</button>
+          <div class="yoco-note">
+            <span>🔒</span>
+            <span>Just Cell It never sees or stores your card details — they're entered only on Yoco's secure page.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Shown after returning from Yoco (if you've configured a redirect URL) -->
+    <div id="status-view" style="display:none; max-width: 480px; margin: 0 auto;">
+      <div class="summary-card status-card" id="status-card"></div>
+    </div>
+
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <span>© 2026 Just Cell It. Not a real registered business — demo storefront.</span>
+    <span>Payments powered by Yoco</span>
+  </div>
+</footer>
+
+<script src="js/config.js"></script>
+<script src="js/checkout.js"></script>
+</body>
+</html>

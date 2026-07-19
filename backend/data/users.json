@@ -1,0 +1,25 @@
+[
+  {
+    "id": "5f695e86-6e2f-471a-8c4d-aeaf8e7d48fe",
+    "name": "Cebolakhe",
+    "email": "cebolakhemlambo05@gmail.com",
+    "passwordHash": "$2a$10$mnSRTMYD709ayMc7n/BrkOQXMiv5btpBBxcO.UMks/6xaQIM2gLn2",
+    "createdAt": "2026-07-16T08:51:30.606Z"
+  },
+  {
+    "id": "615cfc21-d6ff-4c72-a4cf-fc036e4da2c0",
+    "name": "Admin",
+    "email": "admin@justcellit.com",
+    "passwordHash": "$2a$10$3cGdlzoI6lGyHPmD5X9nR.2yT4CEmIU4ycKR85gVTM1wTBpe55dO2",
+    "createdAt": "2026-07-19T09:05:20.953Z",
+    "role": "admin"
+  },
+  {
+    "id": "193ef4bb-26f4-4683-b7e8-a3384f52442f",
+    "name": "Test Customer",
+    "email": "customer@example.com",
+    "passwordHash": "$2a$10$wY20EpWlyCNxjixGe1l.wefoqxmZMhLtbqczm8ijK1bXUrEPa0i2a",
+    "role": "customer",
+    "createdAt": "2026-07-19T09:44:35.312Z"
+  }
+]
