@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Contact Us - Just Cell It</title>
+<meta name="description" content="Contact JustCellitza for iPhone availability, branch collection, and nationwide courier support." />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a href="index.html" class="logo">
+      <span class="bars"><span></span><span></span><span></span></span>
+      Just Cell It
+    </a>
+    <button class="menu-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false" aria-controls="site-nav">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="header-controls" id="site-nav">
+      <nav class="nav-links">
+        <a href="catalog.html">Shop iPhones</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact Us</a>
+      </nav>
+      <div class="nav-actions" id="nav-auth-slot"></div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="page-hero">
+    <div class="container page-hero-grid">
+      <div>
+        <div class="eyebrow">
+          <span class="bars"><span style="height:30%"></span><span style="height:60%"></span><span style="height:100%"></span></span>
+          Contact Us
+        </div>
+        <h1>Talk to JustCellitza about your next iPhone.</h1>
+        <p class="lead">Ask about stock, pricing, collection at Rosebank or Hatfield, and courier delivery across South Africa.</p>
+      </div>
+      <div class="contact-direct">
+        <h2>Quick Contact</h2>
+        <p>Email us directly for the fastest response.</p>
+        <a href="mailto:justcellitza826@gmail.com">justcellitza826@gmail.com</a>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="container contact-layout">
+      <div class="contact-card">
+        <h2>Send an enquiry</h2>
+        <p>Messages are saved to the store database so the team can follow up.</p>
+        <form id="contact-form" novalidate>
+          <div class="alert alert-error" id="contact-error"></div>
+          <div class="alert alert-success" id="contact-success"></div>
+          <div class="field">
+            <label for="name">Full name</label>
+            <input id="name" name="name" autocomplete="name" required />
+          </div>
+          <div class="field">
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" autocomplete="email" required />
+          </div>
+          <div class="field">
+            <label for="phone">Phone</label>
+            <input id="phone" name="phone" autocomplete="tel" />
+          </div>
+          <div class="field">
+            <label for="subject">Subject</label>
+            <select id="subject" name="subject">
+              <option value="Product availability">Product availability</option>
+              <option value="Branch collection">Branch collection</option>
+              <option value="Courier delivery">Courier delivery</option>
+              <option value="Order support">Order support</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="message">Message</label>
+            <textarea id="message" name="message" rows="5" required></textarea>
+          </div>
+          <input type="hidden" name="to_email" value="justcellitza826@gmail.com" />
+          <input type="hidden" name="store_name" value="Just Cell It" />
+          <button type="submit" class="btn btn-primary btn-block" id="contact-submit">Send message</button>
+        </form>
+      </div>
+
+      <aside class="branch-list">
+        <h2>Visit a branch</h2>
+        <div class="branch-item">
+          <strong>Rosebank, Johannesburg</strong>
+          <span>Regus Offices, Cradock Square, Rosebank Mall.</span>
+        </div>
+        <div class="branch-item">
+          <strong>Hatfield, Pretoria</strong>
+          <span>353 Festival Street.</span>
+        </div>
+        <div class="branch-item">
+          <strong>Nationwide courier</strong>
+          <span>Delivery support across South Africa.</span>
+        </div>
+      </aside>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="container">
+    <span>&copy; 2013 Just Cell It. South African iPhone store.</span>
+    <span><a href="mailto:justcellitza826@gmail.com">justcellitza826@gmail.com</a></span>
+  </div>
+</footer>
+
+<script src="js/config.js"></script>
+<script src="js/emailjs-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script src="js/contact.js"></script>
+</body>
+</html>

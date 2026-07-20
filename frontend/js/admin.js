@@ -19,6 +19,7 @@ async function loadDashboard() {
   const summary = await apiFetch('/api/admin/dashboard');
   document.getElementById('products-count').textContent = summary.productsCount;
   document.getElementById('orders-count').textContent = summary.ordersCount;
+  document.getElementById('messages-count').textContent = summary.messagesCount;
   document.getElementById('pending-count').textContent = summary.pendingOrders;
   document.getElementById('low-stock-count').textContent = summary.lowStockProducts;
 
@@ -58,6 +59,26 @@ async function loadDashboard() {
             <td><span class="pill">${order.status}</span></td>
           </tr>
         `).join('')}
+      </tbody>
+    </table>
+  `;
+
+  const messages = await apiFetch('/api/admin/messages');
+  document.getElementById('messages-table').innerHTML = `
+    <table class="admin-table">
+      <thead>
+        <tr><th>Date</th><th>Name</th><th>Email</th><th>Subject</th><th>Message</th></tr>
+      </thead>
+      <tbody>
+        ${messages.map((message) => `
+          <tr>
+            <td>${new Date(message.createdAt).toLocaleDateString('en-ZA')}</td>
+            <td>${message.name}</td>
+            <td>${message.email}</td>
+            <td>${message.subject}</td>
+            <td>${message.message}</td>
+          </tr>
+        `).join('') || '<tr><td colspan="5">No messages yet.</td></tr>'}
       </tbody>
     </table>
   `;

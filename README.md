@@ -1,7 +1,8 @@
 # Signal — iPhone store starter
 
-A static front-end (registration, login, catalog, checkout) plus a small
-Node.js backend that handles accounts and Ozow payments.
+A static front-end (home, about, contact, registration, login, catalog,
+checkout, and admin) plus a small Node.js backend that handles accounts,
+product data, contact enquiries, and Ozow payments.
 
 ```
 iphone-store/
@@ -28,7 +29,60 @@ npx serve .                # or: python3 -m http.server 5500
 `frontend/js/config.js` already points at `http://localhost:4000` when
 you're on localhost.
 
-## 2. Get your Ozow credentials
+## 2. Admin access
+
+The backend creates or repairs the default admin account on startup:
+
+```text
+Email: admin@justcellit.com
+Password: admin123456
+```
+
+Admins are redirected to `frontend/admin.html` after login. The admin dashboard
+can view products, orders, low-stock counts, and Contact Us messages.
+
+## 3. Database
+
+The deployable Node database layer lives in `backend/db.js`. It stores data in
+JSON collections under `backend/data`:
+
+```text
+users.json      customer/admin accounts
+sessions.json   login sessions
+products.json   store catalog and stock
+orders.json     checkout orders
+messages.json   Contact Us enquiries
+```
+
+This keeps the project easy to deploy on basic Node hosting because there is no
+native database server to install. For production with higher order volume, move
+the same `db.js` methods to SQLite, Postgres, or another hosted database.
+
+## 4. Contact form email
+
+Contact Us enquiries are saved in `backend/data/messages.json` and can also be
+emailed to:
+
+```text
+justcellitza826@gmail.com
+```
+
+To enable email delivery, add SMTP settings to `backend/.env` or your deployed
+backend environment variables:
+
+```text
+CONTACT_TO_EMAIL=justcellitza826@gmail.com
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=your_sending_email@gmail.com
+SMTP_PASS=your_gmail_app_password_here
+MAIL_FROM="Just Cell It Website <your_sending_email@gmail.com>"
+```
+
+For Gmail, `SMTP_PASS` must be an app password, not the normal mailbox password.
+
+## 5. Get your Ozow credentials
 
 1. Sign up at https://pay.ozow.com as a merchant (you'll need business/bank
    details for verification — this is required by law for anyone accepting
@@ -46,7 +100,7 @@ you're on localhost.
 (`backend/.env`), never in any frontend file. That's the whole reason a
 backend exists here — a static site cannot keep this secret.
 
-## 3. How the payment flow works
+## 6. How the payment flow works
 
 1. Customer clicks "Buy now" → logs in/registers if needed.
 2. On the checkout page they pick a quantity and click "Continue to Ozow".
@@ -61,7 +115,7 @@ backend exists here — a static site cannot keep this secret.
    and reduces stock. This matters because a redirect alone could be faked;
    the webhook is signed and verified.
 
-## 4. Deploying
+## 7. Deploying
 
 **Backend → Render (or Railway/Fly.io)**
 1. Push this repo to GitHub.
@@ -82,7 +136,7 @@ site)
    your deployed frontend's URL (used for CORS and Ozow's redirect links).
 3. Deploy the `frontend` folder.
 
-## 5. Before you take real payments
+## 8. Before you take real payments
 
 - Swap the JSON-file storage (`backend/data/*.json`) for a real database —
   it works for building and testing, but isn't safe for concurrent orders

@@ -1,0 +1,28 @@
+[
+  {
+    "id": "bb5444cb-5b2a-47d6-8bbc-72455ca5468f",
+    "name": "Cebolakhe",
+    "email": "cebolakhemlambo05@gmail.com",
+    "phone": "0660340946",
+    "subject": "Courier delivery",
+    "message": "Hi I'm waiting for my Order.",
+    "status": "new",
+    "createdAt": "2026-07-20T12:40:20.102Z",
+    "emailSent": false,
+    "emailTo": "justcellitza826@gmail.com",
+    "emailError": "SMTP settings are not configured."
+  },
+  {
+    "id": "26b1bead-1a6f-4a73-bb82-5052f378ed78",
+    "name": "Cebolakhe",
+    "email": "cebolakhemlambo05@gmail.com",
+    "phone": "0660340946",
+    "subject": "Courier delivery",
+    "message": "Hi I'm waiting for the delivery",
+    "status": "new",
+    "createdAt": "2026-07-20T13:24:25.335Z",
+    "emailSent": true,
+    "emailTo": "justcellitza826@gmail.com",
+    "emailProvider": "EmailJS"
+  }
+]

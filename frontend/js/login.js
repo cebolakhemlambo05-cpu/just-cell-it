@@ -29,7 +29,7 @@ async function handleLogin(event) {
     setSession(data.token, data.user);
     const params = new URLSearchParams(window.location.search);
     const nextPath = params.get('next');
-    const target = nextPath || 'catalog.html';
+    const target = nextPath || (data.user?.role === 'admin' ? 'admin.html' : 'catalog.html');
     window.location.assign(new URL(target, window.location.href).href);
   } catch (err) {
     errorBox.textContent = err.message;

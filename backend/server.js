@@ -10,9 +10,9 @@ const express = require('express');
 const cors = require('cors');
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
-const fs = require('fs');
-const path = require('path');
 const net = require('net');
+const db = require('./db');
+const { CONTACT_TO_EMAIL, sendContactEmail } = require('./mailer');
 
 const app = express();
 const DEFAULT_PORT = 4000;
@@ -37,44 +37,44 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true })); // Ozow posts as form-encoded
 
-// ---------- tiny JSON "database" ----------
-const DATA_DIR = path.join(__dirname, 'data');
-const USERS_FILE = path.join(DATA_DIR, 'users.json');
-const ORDERS_FILE = path.join(DATA_DIR, 'orders.json');
-const PRODUCTS_FILE = path.join(DATA_DIR, 'products.json');
-
-function readJson(file, fallback) {
-  try {
-    return JSON.parse(fs.readFileSync(file, 'utf8'));
-  } catch {
-    return fallback;
-  }
-}
-function writeJson(file, data) {
-  fs.writeFileSync(file, JSON.stringify(data, null, 2));
-}
-if (!fs.existsSync(USERS_FILE)) writeJson(USERS_FILE, []);
-if (!fs.existsSync(ORDERS_FILE)) writeJson(ORDERS_FILE, []);
-
 function getUsers() {
-  return readJson(USERS_FILE, []);
+  return db.getUsers();
 }
 function getUserById(userId) {
-  return getUsers().find((u) => u.id === userId) || null;
+  return db.getUserById(userId);
 }
 
 async function ensureAdminUser() {
-  return;
+  const adminEmail = 'admin@justcellit.com';
+  const adminPassword = 'admin123456';
+  const users = getUsers();
+  const existingAdmin = users.find((user) => user.email.toLowerCase() === adminEmail);
+  const passwordHash = await bcrypt.hash(adminPassword, 10);
+
+  if (existingAdmin) {
+    existingAdmin.name = existingAdmin.name || 'Admin';
+    existingAdmin.role = 'admin';
+    existingAdmin.passwordHash = passwordHash;
+  } else {
+    users.push({
+      id: crypto.randomUUID(),
+      name: 'Admin',
+      email: adminEmail,
+      passwordHash,
+      role: 'admin',
+      createdAt: new Date().toISOString(),
+    });
+  }
+
+  db.saveUsers(users);
 }
 
 // ---------- sessions ----------
 // Persisted to disk (not just kept in memory) so that restarting the server
 // during development doesn't silently log everyone out while the frontend
 // still thinks they're logged in.
-const SESSIONS_FILE = path.join(DATA_DIR, 'sessions.json');
-if (!fs.existsSync(SESSIONS_FILE)) writeJson(SESSIONS_FILE, {});
-let sessionsObj = readJson(SESSIONS_FILE, {});
-function saveSessions() { writeJson(SESSIONS_FILE, sessionsObj); }
+let sessionsObj = db.getSessions();
+function saveSessions() { db.saveSessions(sessionsObj); }
 
 function requireAuth(req, res, next) {
   const header = req.headers.authorization || '';
@@ -104,7 +104,7 @@ app.post('/api/register', async (req, res) => {
   const passwordHash = await bcrypt.hash(password, 10);
   const user = { id: crypto.randomUUID(), name, email, passwordHash, role: 'customer', createdAt: new Date().toISOString() };
   users.push(user);
-  writeJson(USERS_FILE, users);
+  db.saveUsers(users);
 
   res.status(201).json({ message: 'Account created. You can now log in.' });
 });
@@ -140,13 +140,153 @@ app.get('/api/me', requireAuth, (req, res) => {
 
 // ---------- product catalog ----------
 app.get('/api/products', (req, res) => {
-  res.json(readJson(PRODUCTS_FILE, []));
+  res.json(db.getProducts());
 });
 
 app.get('/api/products/:id', (req, res) => {
-  const product = readJson(PRODUCTS_FILE, []).find((p) => p.id === req.params.id);
+  const product = db.getProductById(req.params.id);
   if (!product) return res.status(404).json({ error: 'Product not found.' });
   res.json(product);
+});
+
+app.post('/api/contact', async (req, res) => {
+  const { name, email, phone, subject, message, skipEmail } = req.body;
+  if (!name || !email || !message) {
+    return res.status(400).json({ error: 'Name, email and message are required.' });
+  }
+
+  const contactMessage = db.createMessage({
+    id: crypto.randomUUID(),
+    name: String(name).trim(),
+    email: String(email).trim(),
+    phone: String(phone || '').trim(),
+    subject: String(subject || 'Website enquiry').trim(),
+    message: String(message).trim(),
+    status: 'new',
+    createdAt: new Date().toISOString(),
+  });
+
+  if (skipEmail) {
+    contactMessage.emailSent = true;
+    contactMessage.emailTo = CONTACT_TO_EMAIL;
+    contactMessage.emailProvider = 'EmailJS';
+    db.saveMessages(db.getMessages().map((savedMessage) => (
+      savedMessage.id === contactMessage.id ? contactMessage : savedMessage
+    )));
+  } else {
+    try {
+      const emailResult = await sendContactEmail(contactMessage);
+      contactMessage.emailSent = emailResult.sent;
+      contactMessage.emailTo = CONTACT_TO_EMAIL;
+      if (!emailResult.sent) contactMessage.emailError = emailResult.reason;
+      db.saveMessages(db.getMessages().map((savedMessage) => (
+        savedMessage.id === contactMessage.id ? contactMessage : savedMessage
+      )));
+    } catch (error) {
+      contactMessage.emailSent = false;
+      contactMessage.emailTo = CONTACT_TO_EMAIL;
+      contactMessage.emailError = error.message;
+      db.saveMessages(db.getMessages().map((savedMessage) => (
+        savedMessage.id === contactMessage.id ? contactMessage : savedMessage
+      )));
+      console.error('Contact email failed:', error.message);
+    }
+  }
+
+  res.status(201).json({
+    message: contactMessage.emailSent
+      ? 'Thanks. We received your enquiry and emailed the store.'
+      : 'Thanks. We received your enquiry. Email delivery is not configured yet.',
+    contactMessage,
+  });
+});
+
+function requireAdmin(req, res, next) {
+  if (!req.user || req.user.role !== 'admin') {
+    return res.status(403).json({ error: 'Admin access required.' });
+  }
+  next();
+}
+
+app.get('/api/admin/dashboard', requireAuth, requireAdmin, (req, res) => {
+  const products = db.getProducts();
+  const orders = db.getOrders();
+  const messages = db.getMessages();
+  const pendingOrders = orders.filter((order) => order.status === 'pending').length;
+  const lowStockProducts = products.filter((product) => Number(product.stock) <= 5).length;
+
+  res.json({
+    productsCount: products.length,
+    ordersCount: orders.length,
+    messagesCount: messages.length,
+    pendingOrders,
+    lowStockProducts,
+  });
+});
+
+app.get('/api/admin/products', requireAuth, requireAdmin, (req, res) => {
+  res.json(db.getProducts());
+});
+
+app.post('/api/admin/products', requireAuth, requireAdmin, (req, res) => {
+  const { name, storage, color, price, stock, image, blurb } = req.body;
+  if (!name || !storage || !color || price == null || stock == null) {
+    return res.status(400).json({ error: 'Name, storage, color, price and stock are required.' });
+  }
+
+  const products = db.getProducts();
+  const normalizeId = (value) => (value || '')
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-zA-Z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '')
+    .toLowerCase();
+
+  const baseId = normalizeId(`${name}-${storage}-${color}`) || `product-${Date.now()}`;
+  let id = baseId;
+  let index = 1;
+  while (products.some((product) => product.id === id)) {
+    index += 1;
+    id = `${baseId}-${index}`;
+  }
+
+  const newProduct = {
+    id,
+    name,
+    storage,
+    color,
+    price: Number(price),
+    stock: Number(stock),
+    image: image || '',
+    blurb: blurb || '',
+    createdAt: new Date().toISOString(),
+  };
+
+  products.push(newProduct);
+  db.saveProducts(products);
+  res.status(201).json(newProduct);
+});
+
+app.get('/api/admin/orders', requireAuth, requireAdmin, (req, res) => {
+  const orders = db.getOrders();
+  const users = getUsers();
+  const products = db.getProducts();
+  const userMap = users.reduce((map, user) => ({ ...map, [user.id]: user }), {});
+  const productMap = products.reduce((map, product) => ({ ...map, [product.id]: product }), {});
+
+  res.json(orders.map((order) => ({
+    ...order,
+    user: userMap[order.userId] ? {
+      id: userMap[order.userId].id,
+      name: userMap[order.userId].name,
+      email: userMap[order.userId].email,
+    } : null,
+    product: productMap[order.productId] || null,
+  })));
+});
+
+app.get('/api/admin/messages', requireAuth, requireAdmin, (req, res) => {
+  res.json(db.getMessages().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
 });
 
 // ---------- Ozow checkout ----------
@@ -167,7 +307,7 @@ app.post('/api/checkout', requireAuth, (req, res) => {
   const { productId, quantity } = req.body;
   const qty = Math.max(1, parseInt(quantity, 10) || 1);
 
-  const products = readJson(PRODUCTS_FILE, []);
+  const products = db.getProducts();
   const product = products.find((p) => p.id === productId);
   if (!product) return res.status(404).json({ error: 'Product not found.' });
   if (product.stock < qty) return res.status(400).json({ error: 'Not enough stock available.' });
@@ -175,7 +315,7 @@ app.post('/api/checkout', requireAuth, (req, res) => {
   const amount = (product.price * qty).toFixed(2);
   const reference = `ORD-${Date.now()}-${crypto.randomBytes(3).toString('hex')}`;
 
-  const orders = readJson(ORDERS_FILE, []);
+  const orders = db.getOrders();
   orders.push({
     reference,
     userId: req.userId,
@@ -185,7 +325,7 @@ app.post('/api/checkout', requireAuth, (req, res) => {
     status: 'pending',
     createdAt: new Date().toISOString(),
   });
-  writeJson(ORDERS_FILE, orders);
+  db.saveOrders(orders);
 
   const siteCode = process.env.OZOW_SITE_CODE;
   const privateKey = process.env.OZOW_PRIVATE_KEY;
@@ -253,31 +393,31 @@ app.post('/api/ozow-webhook', (req, res) => {
     return res.status(403).send('Invalid hash.');
   }
 
-  const orders = readJson(ORDERS_FILE, []);
+  const orders = db.getOrders();
   const order = orders.find((o) => o.reference === body.TransactionReference);
   if (!order) return res.status(404).send('Unknown order.');
 
   if (body.Status === 'Complete') {
     order.status = 'paid';
-    const products = readJson(PRODUCTS_FILE, []);
+    const products = db.getProducts();
     const product = products.find((p) => p.id === order.productId);
     if (product) {
       product.stock = Math.max(0, product.stock - order.quantity);
-      writeJson(PRODUCTS_FILE, products);
+      db.saveProducts(products);
     }
   } else if (body.Status === 'Cancelled') {
     order.status = 'cancelled';
   } else {
     order.status = 'failed';
   }
-  writeJson(ORDERS_FILE, orders);
+  db.saveOrders(orders);
 
   res.status(200).send('OK');
 });
 
 // Lets the checkout page poll for the current status of an order.
 app.get('/api/orders/:reference', requireAuth, (req, res) => {
-  const orders = readJson(ORDERS_FILE, []);
+  const orders = db.getOrders();
   const order = orders.find((o) => o.reference === req.params.reference && o.userId === req.userId);
   if (!order) return res.status(404).json({ error: 'Order not found.' });
   res.json(order);

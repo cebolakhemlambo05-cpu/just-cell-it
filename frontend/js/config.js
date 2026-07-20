@@ -149,8 +149,12 @@ function renderAuthSlot() {
   if (!slot) return;
   const user = getUser();
   if (user) {
+    const adminLink = user.role === 'admin'
+      ? '<a href="admin.html" class="btn btn-secondary">Admin</a>'
+      : '';
     slot.innerHTML = `
       <span style="color:var(--muted); font-size:0.9rem;">Hi, ${user.name.split(' ')[0]}</span>
+      ${adminLink}
       <button class="btn btn-secondary" id="logout-btn">Log out</button>
     `;
     document.getElementById('logout-btn').addEventListener('click', async () => {

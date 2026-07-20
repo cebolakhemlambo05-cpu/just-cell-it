@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="css/style.css" />
   <style>
     .admin-shell { padding: 40px 0 70px; }
-    .admin-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .admin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 24px; }
     .admin-card { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow-sm); }
     .admin-card h3 { font-size: 1rem; margin-bottom: 8px; }
     .admin-card .value { font-size: 1.7rem; font-family: var(--font-display); font-weight: 700; }
@@ -28,7 +28,17 @@
 <header class="site-header">
   <div class="container">
     <a href="index.html" class="logo"><span class="bars"><span></span><span></span><span></span></span>Just Cell It</a>
-    <div class="nav-actions" id="nav-auth-slot"></div>
+    <button class="menu-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false" aria-controls="site-nav">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="header-controls" id="site-nav">
+      <nav class="nav-links">
+        <a href="catalog.html">Shop iPhones</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact Us</a>
+      </nav>
+      <div class="nav-actions" id="nav-auth-slot"></div>
+    </div>
   </div>
 </header>
 
@@ -37,6 +47,7 @@
     <div class="admin-grid">
       <div class="admin-card"><h3>Products</h3><div class="value" id="products-count">0</div></div>
       <div class="admin-card"><h3>Orders</h3><div class="value" id="orders-count">0</div></div>
+      <div class="admin-card"><h3>Messages</h3><div class="value" id="messages-count">0</div></div>
       <div class="admin-card"><h3>Pending</h3><div class="value" id="pending-count">0</div></div>
       <div class="admin-card"><h3>Low stock</h3><div class="value" id="low-stock-count">0</div></div>
     </div>
@@ -63,6 +74,11 @@
     <div class="admin-panel">
       <h2>Orders</h2>
       <div id="orders-table"></div>
+    </div>
+
+    <div class="admin-panel">
+      <h2>Contact messages</h2>
+      <div id="messages-table"></div>
     </div>
   </div>
 </main>
