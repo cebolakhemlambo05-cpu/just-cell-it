@@ -45,6 +45,92 @@ function renderSummary() {
   });
 }
 
+// ---------- delivery form ----------
+
+function getDeliveryMethod() {
+  const checked = document.querySelector('input[name="delivery-method"]:checked');
+  return checked ? checked.value : 'address';
+}
+
+function toggleDeliveryFields() {
+  const method = getDeliveryMethod();
+  document.getElementById('address-fields').style.display = method === 'address' ? 'block' : 'none';
+  document.getElementById('pep-fields').style.display = method === 'pep' ? 'block' : 'none';
+  updatePayButtonState();
+}
+
+function collectDeliveryDetails() {
+  const method = getDeliveryMethod();
+  const base = {
+    method,
+    name: document.getElementById('d-name').value.trim(),
+    phone: document.getElementById('d-phone').value.trim(),
+    email: document.getElementById('d-email').value.trim(),
+  };
+
+  if (method === 'address') {
+    return {
+      ...base,
+      street: document.getElementById('d-street').value.trim(),
+      suburb: document.getElementById('d-suburb').value.trim(),
+      city: document.getElementById('d-city').value.trim(),
+      province: document.getElementById('d-province').value,
+      postalCode: document.getElementById('d-postal').value.trim(),
+      instructions: document.getElementById('d-instructions').value.trim(),
+    };
+  }
+
+  return {
+    ...base,
+    pepStore: document.getElementById('d-pep-store').value.trim(),
+    pepSuburb: document.getElementById('d-pep-suburb').value.trim(),
+  };
+}
+
+function isValidPhone(phone) {
+  // Basic SA mobile check: 10 digits, optionally with spaces/dashes/leading +27
+  const digits = phone.replace(/[\s-]/g, '');
+  return /^(\+27|0)\d{9}$/.test(digits);
+}
+
+function validateDelivery(details) {
+  if (!details.name) return 'Please enter your full name.';
+  if (!details.phone || !isValidPhone(details.phone)) return 'Please enter a valid South African mobile number.';
+  if (!details.email || !/^\S+@\S+\.\S+$/.test(details.email)) return 'Please enter a valid email address.';
+
+  if (details.method === 'address') {
+    if (!details.street) return 'Please enter your street address.';
+    if (!details.suburb) return 'Please enter your suburb.';
+    if (!details.city) return 'Please enter your city or town.';
+    if (!details.province) return 'Please select your province.';
+    if (!/^\d{4}$/.test(details.postalCode)) return 'Please enter a valid 4-digit postal code.';
+  } else {
+    if (!details.pepStore) return 'Please enter your nearest PEP store.';
+    if (!details.pepSuburb) return 'Please enter the suburb of that PEP store.';
+  }
+
+  return null;
+}
+
+function updatePayButtonState() {
+  const btn = document.getElementById('pay-btn');
+  const details = collectDeliveryDetails();
+  const error = validateDelivery(details);
+  btn.disabled = Boolean(error);
+  btn.textContent = error ? 'Complete delivery details to continue' : 'Pay Now';
+}
+
+function attachDeliveryListeners() {
+  document.querySelectorAll('input[name="delivery-method"]').forEach((radio) => {
+    radio.addEventListener('change', toggleDeliveryFields);
+  });
+  document.getElementById('delivery-card').addEventListener('input', updatePayButtonState);
+  document.getElementById('delivery-card').addEventListener('change', updatePayButtonState);
+  toggleDeliveryFields();
+}
+
+// ---------- payment ----------
+
 function goToYoco() {
   const btn = document.getElementById('pay-btn');
   btn.disabled = true;
@@ -60,6 +146,7 @@ function goToYoco() {
   url.searchParams.set('reference', reference);
   window.location.href = url.toString();
 }
+
 
 function showCheckoutError(message) {
   let box = document.getElementById('checkout-error');
@@ -84,6 +171,8 @@ function initOrderView() {
     .catch(() => {
       document.getElementById('summary-card').innerHTML = `<p>Couldn't load that product. <a href="catalog.html" style="color:var(--accent)">Back to shop</a></p>`;
     });
+
+  attachDeliveryListeners();
 
   document.getElementById('pay-btn').addEventListener('click', () => {
     if (!currentProduct) return;

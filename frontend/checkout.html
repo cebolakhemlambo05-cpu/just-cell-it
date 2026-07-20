@@ -37,20 +37,116 @@
       <div class="section-head">
         <div>
           <h2>Checkout</h2>
-          <p>Review your order, then pay securely with Yoco.</p>
+          <p>Confirm where this order should go, then pay securely with Yoco.</p>
         </div>
       </div>
+
       <div class="checkout-grid">
-        <div class="summary-card" id="summary-card">
-          <p style="color: var(--muted);">Loading your order…</p>
+        <div style="display:flex; flex-direction:column; gap:20px;">
+
+          <!-- Delivery details: required before payment unlocks -->
+          <div class="summary-card" id="delivery-card">
+            <h3 style="margin-top:0;">Delivery details</h3>
+            <div class="alert alert-error" id="delivery-error"></div>
+
+            <div class="field">
+              <label for="d-name">Full name</label>
+              <input id="d-name" name="d-name" autocomplete="name" required />
+            </div>
+            <div class="field">
+              <label for="d-phone">Mobile number</label>
+              <input id="d-phone" name="d-phone" type="tel" autocomplete="tel" placeholder="082 123 4567" required />
+              <span class="field-hint">The courier will call or SMS this number on delivery day.</span>
+            </div>
+            <div class="field">
+              <label for="d-email">Email</label>
+              <input id="d-email" name="d-email" type="email" autocomplete="email" required />
+              <span class="field-hint">We'll send order and tracking updates here.</span>
+            </div>
+
+            <div class="field">
+              <label>How should we get this to you?</label>
+              <div class="delivery-method-toggle">
+                <label class="radio-pill">
+                  <input type="radio" name="delivery-method" value="address" checked />
+                  <span>Courier to my address</span>
+                </label>
+                <label class="radio-pill">
+                  <input type="radio" name="delivery-method" value="pep" />
+                  <span>Collect at a PEP store (Paxi)</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Home / work address fields -->
+            <div id="address-fields">
+              <div class="field">
+                <label for="d-street">Street address / unit &amp; complex</label>
+                <input id="d-street" name="d-street" autocomplete="street-address" placeholder="12 Voortrekker Street, Unit 4" required />
+              </div>
+              <div class="field">
+                <label for="d-suburb">Suburb</label>
+                <input id="d-suburb" name="d-suburb" autocomplete="address-level3" required />
+              </div>
+              <div class="field-row">
+                <div class="field">
+                  <label for="d-city">City / town</label>
+                  <input id="d-city" name="d-city" autocomplete="address-level2" required />
+                </div>
+                <div class="field">
+                  <label for="d-postal">Postal code</label>
+                  <input id="d-postal" name="d-postal" inputmode="numeric" autocomplete="postal-code" maxlength="4" required />
+                </div>
+              </div>
+              <div class="field">
+                <label for="d-province">Province</label>
+                <select id="d-province" name="d-province" required>
+                  <option value="">Select a province</option>
+                  <option>Eastern Cape</option>
+                  <option>Free State</option>
+                  <option>Gauteng</option>
+                  <option>KwaZulu-Natal</option>
+                  <option>Limpopo</option>
+                  <option>Mpumalanga</option>
+                  <option>North West</option>
+                  <option>Northern Cape</option>
+                  <option>Western Cape</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="d-instructions">Delivery instructions (optional)</label>
+                <textarea id="d-instructions" name="d-instructions" rows="3" placeholder="Gate code, landmark, best time to deliver, etc."></textarea>
+              </div>
+            </div>
+
+            <!-- PEP / Paxi pickup point fields -->
+            <div id="pep-fields" style="display:none;">
+              <div class="field">
+                <label for="d-pep-store">Nearest PEP store</label>
+                <input id="d-pep-store" name="d-pep-store" placeholder="e.g. PEP Rosebank Mall" required />
+              </div>
+              <div class="field">
+                <label for="d-pep-suburb">Suburb / area of that store</label>
+                <input id="d-pep-suburb" name="d-pep-suburb" required />
+              </div>
+              <p class="field-hint">Your order ships to this PEP store via the Paxi network. You'll get an SMS/email when it's ready for collection — bring your ID.</p>
+            </div>
+          </div>
+
         </div>
-        <div class="pay-card">
-          <h3 style="margin-bottom: 6px;">Pay with Yoco</h3>
-          <p style="color: var(--muted); font-size: 0.9rem; margin-top: 0;">You'll be taken to Yoco's secure payment page to enter your card details and approve this exact amount.</p>
-          <button class="btn btn-primary btn-block" id="pay-btn">Pay Now</button>
-          <div class="yoco-note">
-            <span>🔒</span>
-            <span>Just Cell It never sees or stores your card details — they're entered only on Yoco's secure page.</span>
+
+        <div style="display:flex; flex-direction:column; gap:20px;">
+          <div class="summary-card" id="summary-card">
+            <p style="color: var(--muted);">Loading your order…</p>
+          </div>
+          <div class="pay-card">
+            <h3 style="margin-bottom: 6px;">Pay with Yoco</h3>
+            <p style="color: var(--muted); font-size: 0.9rem; margin-top: 0;">You'll be taken to Yoco's secure payment page to enter your card details and approve this exact amount.</p>
+            <button class="btn btn-primary btn-block" id="pay-btn" disabled>Complete delivery details to continue</button>
+            <div class="yoco-note">
+              <span>🔒</span>
+              <span>Just Cell It never sees or stores your card details — they're entered only on Yoco's secure page.</span>
+            </div>
           </div>
         </div>
       </div>
@@ -70,6 +166,19 @@
     <span>Payments powered by Yoco</span>
   </div>
 </footer>
+
+<style>
+  .field-hint { display:block; font-size:0.78rem; color:var(--muted); margin-top:4px; }
+  .field-row { display:flex; gap:12px; }
+  .field-row .field { flex:1; }
+  .delivery-method-toggle { display:flex; gap:10px; flex-wrap:wrap; margin-top:6px; }
+  .radio-pill {
+    display:flex; align-items:center; gap:8px;
+    border:1px solid var(--border, #333); border-radius:999px;
+    padding:8px 14px; cursor:pointer; font-size:0.85rem;
+  }
+  .radio-pill input { margin:0; }
+</style>
 
 <script src="js/config.js"></script>
 <script src="js/checkout.js"></script>
