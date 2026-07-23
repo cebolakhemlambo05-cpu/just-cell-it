@@ -1,9 +1,37 @@
+// ============================================
+// API Configuration
+// ============================================
+const API_BASE_URL = 'https://just-cell-it-5.onrender.com';
+
+// ============================================
+// Constants & State
+// ============================================
 const params = new URLSearchParams(window.location.search);
 let currentProduct = null;
 let quantity = 1;
 
+// Your Yoco hosted Payment Page
+const YOCO_PAY_URL = 'https://pay.yoco.com/just-cell-it1';
+
+// ============================================
+// Helper Functions
+// ============================================
 function formatZAR(amount) {
   return `R${Number(amount).toLocaleString('en-ZA', { minimumFractionDigits: 2 })}`;
+}
+
+function getToken() {
+  return localStorage.getItem('token');
+}
+
+function getUser() {
+  const raw = localStorage.getItem('user');
+  return raw ? JSON.parse(raw) : null;
+}
+
+function clearSession() {
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
 }
 
 function requireLogin() {
@@ -15,6 +43,43 @@ function requireLogin() {
   return true;
 }
 
+// ============================================
+// API Fetch Helper
+// ============================================
+async function apiFetch(path, options = {}) {
+  const token = getToken();
+  const headers = { 'Content-Type': 'application/json', ...(options.headers || {}) };
+  if (token) headers.Authorization = `Bearer ${token}`;
+
+  const response = await fetch(`${API_BASE_URL}${path}`, { ...options, headers });
+
+  // Handle non-JSON responses
+  const contentType = response.headers.get('content-type');
+  let data;
+  if (contentType && contentType.includes('application/json')) {
+    data = await response.json();
+  } else {
+    data = await response.text();
+  }
+
+  if (response.status === 401 && token) {
+    clearSession();
+    const next = encodeURIComponent(window.location.pathname.split('/').pop() + window.location.search);
+    window.location.href = `login.html?next=${next}`;
+    throw new Error('Your session expired — please log in again.');
+  }
+
+  if (!response.ok) {
+    const errorMessage = data?.error || data?.message || `Request failed with status ${response.status}`;
+    throw new Error(errorMessage);
+  }
+
+  return data;
+}
+
+// ============================================
+// Order Summary
+// ============================================
 function renderSummary() {
   const card = document.getElementById('summary-card');
   const total = currentProduct.price * quantity;
@@ -45,8 +110,9 @@ function renderSummary() {
   });
 }
 
-// ---------- delivery form ----------
-
+// ============================================
+// Delivery Form
+// ============================================
 function getDeliveryMethod() {
   const checked = document.querySelector('input[name="delivery-method"]:checked');
   return checked ? checked.value : 'address';
@@ -88,7 +154,6 @@ function collectDeliveryDetails() {
 }
 
 function isValidPhone(phone) {
-  // Basic SA mobile check: 10 digits, optionally with spaces/dashes/leading +27
   const digits = phone.replace(/[\s-]/g, '');
   return /^(\+27|0)\d{9}$/.test(digits);
 }
@@ -129,24 +194,51 @@ function attachDeliveryListeners() {
   toggleDeliveryFields();
 }
 
-// ---------- payment ----------
-
-function goToYoco() {
+// ============================================
+// Payment Processing
+// ============================================
+async function processOrder() {
   const btn = document.getElementById('pay-btn');
   btn.disabled = true;
-  btn.textContent = 'Redirecting to Yoco…';
+  btn.textContent = 'Processing...';
 
-  const amount = (currentProduct.price * quantity).toFixed(2);
-  // A short, unique reference so you can match this payment to the order
-  // when you check your Yoco dashboard (or a future webhook integration).
-  const reference = `ORD-${Date.now()}`;
+  const delivery = collectDeliveryDetails();
+  const error = validateDelivery(delivery);
+  if (error) {
+    showCheckoutError(error);
+    btn.disabled = false;
+    btn.textContent = 'Pay Now';
+    return;
+  }
 
-  const url = new URL(YOCO_PAY_URL);
-  url.searchParams.set('amount', amount);
-  url.searchParams.set('reference', reference);
-  window.location.href = url.toString();
+  try {
+    const response = await apiFetch('/api/checkout', {
+      method: 'POST',
+      body: JSON.stringify({
+        productId: currentProduct.id,
+        quantity: quantity,
+        delivery: delivery,
+      }),
+    });
+
+    // Redirect to Yoco payment page
+    if (response.redirectUrl) {
+      window.location.href = response.redirectUrl;
+    } else {
+      throw new Error('No redirect URL received from server');
+    }
+  } catch (err) {
+    showCheckoutError(err.message || 'Could not start payment. Please try again.');
+    btn.disabled = false;
+    btn.textContent = 'Pay Now';
+  }
 }
 
+function goToYoco() {
+  // This is now handled by processOrder() which uses the backend API
+  // Keep this for backwards compatibility
+  processOrder();
+}
 
 function showCheckoutError(message) {
   let box = document.getElementById('checkout-error');
@@ -160,26 +252,9 @@ function showCheckoutError(message) {
   box.classList.add('show');
 }
 
-function initOrderView() {
-  const productId = params.get('product');
-  if (!productId) {
-    document.getElementById('summary-card').innerHTML = `<p>No product selected. <a href="catalog.html" style="color:var(--accent)">Back to shop</a></p>`;
-    return;
-  }
-  apiFetch(`/api/products/${productId}`)
-    .then((product) => { currentProduct = product; renderSummary(); })
-    .catch(() => {
-      document.getElementById('summary-card').innerHTML = `<p>Couldn't load that product. <a href="catalog.html" style="color:var(--accent)">Back to shop</a></p>`;
-    });
-
-  attachDeliveryListeners();
-
-  document.getElementById('pay-btn').addEventListener('click', () => {
-    if (!currentProduct) return;
-    goToYoco();
-  });
-}
-
+// ============================================
+// Status View
+// ============================================
 function renderStatus(status, reference) {
   document.getElementById('order-view').style.display = 'none';
   document.getElementById('status-view').style.display = 'block';
@@ -214,11 +289,38 @@ function renderStatus(status, reference) {
 
 function initStatusView(status, reference) {
   renderStatus(status, reference);
-  // Note: this basic Yoco Payment Page integration doesn't report payment
-  // status back to the server, so this reflects the URL only. Upgrading to
-  // Yoco's full API + webhooks later would let this check a real order record.
 }
 
+// ============================================
+// Order View
+// ============================================
+function initOrderView() {
+  const productId = params.get('product');
+  if (!productId) {
+    document.getElementById('summary-card').innerHTML = `<p>No product selected. <a href="catalog.html" style="color:var(--accent)">Back to shop</a></p>`;
+    return;
+  }
+  
+  apiFetch(`/api/products/${productId}`)
+    .then((product) => { 
+      currentProduct = product; 
+      renderSummary(); 
+    })
+    .catch(() => {
+      document.getElementById('summary-card').innerHTML = `<p>Couldn't load that product. <a href="catalog.html" style="color:var(--accent)">Back to shop</a></p>`;
+    });
+
+  attachDeliveryListeners();
+
+  document.getElementById('pay-btn').addEventListener('click', () => {
+    if (!currentProduct) return;
+    processOrder();
+  });
+}
+
+// ============================================
+// Initialize Page
+// ============================================
 if (!requireLogin()) {
   // redirecting to login
 } else {

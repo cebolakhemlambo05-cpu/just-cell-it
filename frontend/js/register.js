@@ -1,3 +1,11 @@
+// ============================================
+// API Configuration
+// ============================================
+const API_BASE_URL = 'https://just-cell-it-5.onrender.com';
+
+// ============================================
+// Register Form Handler
+// ============================================
 document.getElementById('register-form').addEventListener('submit', async (e) => {
   e.preventDefault();
   const errorBox = document.getElementById('form-error');
@@ -20,7 +28,7 @@ document.getElementById('register-form').addEventListener('submit', async (e) =>
   submitBtn.textContent = 'Creating account…';
 
   try {
-    await apiFetch('/api/register', {
+    await apiFetch(`${API_BASE_URL}/api/register`, {
       method: 'POST',
       body: JSON.stringify({ name, email, password }),
     });
@@ -34,3 +42,48 @@ document.getElementById('register-form').addEventListener('submit', async (e) =>
     submitBtn.textContent = 'Create account';
   }
 });
+
+// ============================================
+// API Fetch Helper Function
+// ============================================
+async function apiFetch(endpoint, options = {}) {
+  const defaultOptions = {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  };
+
+  const mergedOptions = {
+    ...defaultOptions,
+    ...options,
+    headers: {
+      ...defaultOptions.headers,
+      ...options.headers,
+    },
+  };
+
+  // If we have a token in localStorage, add it to the Authorization header
+  const token = localStorage.getItem('token');
+  if (token) {
+    mergedOptions.headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  const response = await fetch(endpoint, mergedOptions);
+
+  // Handle non-JSON responses
+  const contentType = response.headers.get('content-type');
+  let data;
+  if (contentType && contentType.includes('application/json')) {
+    data = await response.json();
+  } else {
+    data = await response.text();
+  }
+
+  if (!response.ok) {
+    // Throw error with message from server
+    const errorMessage = data?.error || data?.message || `Request failed with status ${response.status}`;
+    throw new Error(errorMessage);
+  }
+
+  return data;
+}

@@ -1,3 +1,11 @@
+// ============================================
+// API Configuration
+// ============================================
+const API_BASE_URL = 'https://just-cell-it-5.onrender.com';
+
+// ============================================
+// Login Handler
+// ============================================
 async function handleLogin(event) {
   if (event) event.preventDefault();
 
@@ -21,7 +29,7 @@ async function handleLogin(event) {
   submitBtn.textContent = 'Logging in…';
 
   try {
-    const data = await apiFetch('/api/login', {
+    const data = await apiFetch(`${API_BASE_URL}/api/login`, {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     });
@@ -41,6 +49,73 @@ async function handleLogin(event) {
 
 window.handleLogin = handleLogin;
 
+// ============================================
+// Session Management
+// ============================================
+function setSession(token, user) {
+  localStorage.setItem('token', token);
+  localStorage.setItem('user', JSON.stringify(user));
+}
+
+function getSession() {
+  const token = localStorage.getItem('token');
+  const user = JSON.parse(localStorage.getItem('user') || 'null');
+  return { token, user };
+}
+
+function clearSession() {
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+}
+
+// ============================================
+// API Fetch Helper Function
+// ============================================
+async function apiFetch(endpoint, options = {}) {
+  const defaultOptions = {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  };
+
+  const mergedOptions = {
+    ...defaultOptions,
+    ...options,
+    headers: {
+      ...defaultOptions.headers,
+      ...options.headers,
+    },
+  };
+
+  // If we have a token in localStorage, add it to the Authorization header
+  const token = localStorage.getItem('token');
+  if (token) {
+    mergedOptions.headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  const response = await fetch(endpoint, mergedOptions);
+
+  // Handle non-JSON responses
+  const contentType = response.headers.get('content-type');
+  let data;
+  if (contentType && contentType.includes('application/json')) {
+    data = await response.json();
+  } else {
+    data = await response.text();
+  }
+
+  if (!response.ok) {
+    // Throw error with message from server
+    const errorMessage = data?.error || data?.message || `Request failed with status ${response.status}`;
+    throw new Error(errorMessage);
+  }
+
+  return data;
+}
+
+// ============================================
+// DOM Event Listeners
+// ============================================
 document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('login-form');
 

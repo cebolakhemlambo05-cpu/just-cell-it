@@ -10,7 +10,7 @@
     "id": "615cfc21-d6ff-4c72-a4cf-fc036e4da2c0",
     "name": "Admin",
     "email": "admin@justcellit.com",
-    "passwordHash": "$2b$10$tbudkKA1xzDr9aOys3Ygu.D86Qw1gVredh8tELhkE61/d0yQOOr8.",
+    "passwordHash": "$2b$10$qVkbM.ih7afbRi4NDGmnVewGRdtK2VF2Qd4w5aPtgw5VXBIiVCri.",
     "createdAt": "2026-07-19T09:05:20.953Z",
     "role": "admin"
   },

@@ -1,3 +1,62 @@
+// ============================================
+// API Configuration
+// ============================================
+const API_BASE_URL = 'https://just-cell-it-5.onrender.com';
+
+// ============================================
+// Session Management
+// ============================================
+function getToken() {
+  return localStorage.getItem('token');
+}
+
+function getUser() {
+  const raw = localStorage.getItem('user');
+  return raw ? JSON.parse(raw) : null;
+}
+
+function clearSession() {
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+}
+
+// ============================================
+// API Fetch Helper
+// ============================================
+async function apiFetch(path, options = {}) {
+  const token = getToken();
+  const headers = { 'Content-Type': 'application/json', ...(options.headers || {}) };
+  if (token) headers.Authorization = `Bearer ${token}`;
+
+  const response = await fetch(`${API_BASE_URL}${path}`, { ...options, headers });
+
+  // Handle non-JSON responses
+  const contentType = response.headers.get('content-type');
+  let data;
+  if (contentType && contentType.includes('application/json')) {
+    data = await response.json();
+  } else {
+    data = await response.text();
+  }
+
+  if (response.status === 401 && token) {
+    clearSession();
+    const next = encodeURIComponent(window.location.pathname.split('/').pop() + window.location.search);
+    window.location.href = `login.html?next=${next}`;
+    throw new Error('Your session expired — please log in again.');
+  }
+
+  if (!response.ok) {
+    const errorMessage = data?.error || data?.message || `Request failed with status ${response.status}`;
+    throw new Error(errorMessage);
+  }
+
+  return data;
+}
+
+// ============================================
+// Admin Access Control
+// ============================================
 async function ensureAdminAccess() {
   try {
     const user = await apiFetch('/api/me');
@@ -12,6 +71,9 @@ async function ensureAdminAccess() {
   }
 }
 
+// ============================================
+// Product Table Rendering
+// ============================================
 function productRowHtml(product) {
   return `
     <tr data-product-id="${product.id}">
@@ -55,6 +117,9 @@ function renderProductsTable(products) {
   });
 }
 
+// ============================================
+// Product CRUD Operations
+// ============================================
 async function saveProductRow(row) {
   const id = row.dataset.productId;
   const statusEl = row.querySelector('.product-row-status');
@@ -75,10 +140,10 @@ async function saveProductRow(row) {
       method: 'PUT',
       body: JSON.stringify(payload),
     });
-    statusEl.textContent = 'Saved — live on the shop now.';
+    statusEl.textContent = '✅ Saved — live on the shop now.';
     statusEl.style.color = 'var(--brand-dim, green)';
   } catch (err) {
-    statusEl.textContent = err.message || 'Could not save changes.';
+    statusEl.textContent = '❌ ' + (err.message || 'Could not save changes.');
     statusEl.style.color = '#c0392b';
   } finally {
     saveBtn.disabled = false;
@@ -102,88 +167,150 @@ async function deleteProductRow(row) {
     deleteBtn.disabled = false;
     deleteBtn.textContent = 'Delete';
     const statusEl = row.querySelector('.product-row-status');
-    statusEl.textContent = err.message || 'Could not delete product.';
+    statusEl.textContent = '❌ ' + (err.message || 'Could not delete product.');
     statusEl.style.color = '#c0392b';
   }
 }
 
+// ============================================
+// Create Product
+// ============================================
+async function createProduct(event) {
+  event.preventDefault();
+  
+  const submitBtn = document.getElementById('create-product-btn');
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Creating...';
+
+  try {
+    const payload = {
+      name: document.getElementById('name').value.trim(),
+      storage: document.getElementById('storage').value.trim(),
+      color: document.getElementById('color').value.trim(),
+      price: document.getElementById('price').value,
+      stock: document.getElementById('stock').value,
+      image: document.getElementById('image').value.trim(),
+      blurb: document.getElementById('blurb').value.trim(),
+    };
+
+    await apiFetch('/api/admin/products', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+    
+    document.getElementById('product-form').reset();
+    loadDashboard();
+  } catch (err) {
+    alert('Error creating product: ' + err.message);
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Create Product';
+  }
+}
+
+// ============================================
+// Load Dashboard
+// ============================================
 async function loadDashboard() {
   const allowed = await ensureAdminAccess();
   if (!allowed) return;
 
-  const summary = await apiFetch('/api/admin/dashboard');
-  document.getElementById('products-count').textContent = summary.productsCount;
-  document.getElementById('orders-count').textContent = summary.ordersCount;
-  document.getElementById('messages-count').textContent = summary.messagesCount;
-  document.getElementById('pending-count').textContent = summary.pendingOrders;
-  document.getElementById('low-stock-count').textContent = summary.lowStockProducts;
+  try {
+    const summary = await apiFetch('/api/admin/dashboard');
+    document.getElementById('products-count').textContent = summary.productsCount;
+    document.getElementById('orders-count').textContent = summary.ordersCount;
+    document.getElementById('messages-count').textContent = summary.messagesCount;
+    document.getElementById('pending-count').textContent = summary.pendingOrders;
+    document.getElementById('low-stock-count').textContent = summary.lowStockProducts;
 
-  const products = await apiFetch('/api/admin/products');
-  renderProductsTable(products);
+    const products = await apiFetch('/api/admin/products');
+    renderProductsTable(products);
 
-  const orders = await apiFetch('/api/admin/orders');
-  document.getElementById('orders-table').innerHTML = `
-    <table class="admin-table">
-      <thead>
-        <tr><th>Reference</th><th>Customer</th><th>Product</th><th>Amount</th><th>Status</th></tr>
-      </thead>
-      <tbody>
-        ${orders.map((order) => `
-          <tr>
-            <td>${order.reference}</td>
-            <td>${order.user?.name || 'Unknown'}</td>
-            <td>${order.product?.name || order.productId}</td>
-            <td>R${Number(order.amount).toLocaleString('en-ZA')}</td>
-            <td><span class="pill">${order.status}</span></td>
-          </tr>
-        `).join('')}
-      </tbody>
-    </table>
-  `;
+    const orders = await apiFetch('/api/admin/orders');
+    document.getElementById('orders-table').innerHTML = `
+      <table class="admin-table">
+        <thead>
+          <tr><th>Reference</th><th>Customer</th><th>Product</th><th>Amount</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          ${orders.map((order) => `
+            <tr>
+              <td>${order.reference}</td>
+              <td>${order.user?.name || 'Unknown'}</td>
+              <td>${order.product?.name || order.productId}</td>
+              <td>R${Number(order.amount).toLocaleString('en-ZA')}</td>
+              <td><span class="pill ${order.status === 'paid' ? 'pill-success' : 'pill-warning'}">${order.status}</span></td>
+            </tr>
+          `).join('') || '<tr><td colspan="5">No orders yet.</td></tr>'}
+        </tbody>
+      </table>
+    `;
 
-  const messages = await apiFetch('/api/admin/messages');
-  document.getElementById('messages-table').innerHTML = `
-    <table class="admin-table">
-      <thead>
-        <tr><th>Date</th><th>Name</th><th>Email</th><th>Subject</th><th>Message</th></tr>
-      </thead>
-      <tbody>
-        ${messages.map((message) => `
-          <tr>
-            <td>${new Date(message.createdAt).toLocaleDateString('en-ZA')}</td>
-            <td>${message.name}</td>
-            <td>${message.email}</td>
-            <td>${message.subject}</td>
-            <td>${message.message}</td>
-          </tr>
-        `).join('') || '<tr><td colspan="5">No messages yet.</td></tr>'}
-      </tbody>
-    </table>
-  `;
+    const messages = await apiFetch('/api/admin/messages');
+    document.getElementById('messages-table').innerHTML = `
+      <table class="admin-table">
+        <thead>
+          <tr><th>Date</th><th>Name</th><th>Email</th><th>Subject</th><th>Message</th></tr>
+        </thead>
+        <tbody>
+          ${messages.map((message) => `
+            <tr>
+              <td>${new Date(message.createdAt).toLocaleDateString('en-ZA')}</td>
+              <td>${message.name}</td>
+              <td>${message.email}</td>
+              <td>${message.subject}</td>
+              <td>${message.message}</td>
+            </tr>
+          `).join('') || '<tr><td colspan="5">No messages yet.</td></tr>'}
+        </tbody>
+      </table>
+    `;
+  } catch (err) {
+    console.error('Error loading dashboard:', err);
+    alert('Error loading dashboard: ' + err.message);
+  }
 }
 
-async function createProduct(event) {
-  event.preventDefault();
-  const payload = {
-    name: document.getElementById('name').value.trim(),
-    storage: document.getElementById('storage').value.trim(),
-    color: document.getElementById('color').value.trim(),
-    price: document.getElementById('price').value,
-    stock: document.getElementById('stock').value,
-    image: document.getElementById('image').value.trim(),
-    blurb: document.getElementById('blurb').value.trim(),
-  };
-
-  await apiFetch('/api/admin/products', {
-    method: 'POST',
-    body: JSON.stringify(payload),
-  });
-  document.getElementById('product-form').reset();
-  loadDashboard();
+// ============================================
+// Render Auth Slot (from main.js)
+// ============================================
+function renderAuthSlot() {
+  const slot = document.getElementById('nav-auth-slot');
+  if (!slot) return;
+  const user = getUser();
+  if (user) {
+    const adminLink = user.role === 'admin'
+      ? '<a href="admin.html" class="btn btn-secondary">Admin</a>'
+      : '';
+    slot.innerHTML = `
+      <span style="color:var(--muted); font-size:0.9rem;">Hi, ${user.name.split(' ')[0]}</span>
+      ${adminLink}
+      <button class="btn btn-secondary" id="logout-btn">Log out</button>
+    `;
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', async () => {
+        try { await apiFetch('/api/logout', { method: 'POST' }); } catch {}
+        clearSession();
+        window.location.href = 'index.html';
+      });
+    }
+  } else {
+    slot.innerHTML = `
+      <a href="login.html" class="btn btn-secondary">Log in</a>
+      <a href="register.html" class="btn btn-primary">Register</a>
+    `;
+  }
 }
 
+// ============================================
+// DOM Event Listeners
+// ============================================
 document.addEventListener('DOMContentLoaded', () => {
   renderAuthSlot();
   loadDashboard();
-  document.getElementById('product-form').addEventListener('submit', createProduct);
+  const form = document.getElementById('product-form');
+  if (form) {
+    form.addEventListener('submit', createProduct);
+  }
 });

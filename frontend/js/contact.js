@@ -1,3 +1,11 @@
+// ============================================
+// API Configuration
+// ============================================
+const API_BASE_URL = 'https://just-cell-it-5.onrender.com';
+
+// ============================================
+// Contact Form Handler
+// ============================================
 async function handleContactSubmit(event) {
   event.preventDefault();
 
@@ -22,7 +30,7 @@ async function handleContactSubmit(event) {
   try {
     const sentWithEmailJs = await sendWithEmailJs(form);
 
-    const response = await apiFetch('/api/contact', {
+    const response = await apiFetch(`${API_BASE_URL}/api/contact`, {
       method: 'POST',
       body: JSON.stringify({ ...payload, skipEmail: sentWithEmailJs }),
     });
@@ -41,6 +49,9 @@ async function handleContactSubmit(event) {
   }
 }
 
+// ============================================
+// EmailJS Helpers
+// ============================================
 function isEmailJsReady() {
   const config = window.EMAILJS_CONFIG || {};
   return Boolean(
@@ -64,6 +75,54 @@ async function sendWithEmailJs(form) {
   return true;
 }
 
+// ============================================
+// API Fetch Helper Function
+// ============================================
+async function apiFetch(endpoint, options = {}) {
+  const defaultOptions = {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  };
+
+  const mergedOptions = {
+    ...defaultOptions,
+    ...options,
+    headers: {
+      ...defaultOptions.headers,
+      ...options.headers,
+    },
+  };
+
+  // If we have a token in localStorage, add it to the Authorization header
+  const token = localStorage.getItem('token');
+  if (token) {
+    mergedOptions.headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  const response = await fetch(endpoint, mergedOptions);
+
+  // Handle non-JSON responses
+  const contentType = response.headers.get('content-type');
+  let data;
+  if (contentType && contentType.includes('application/json')) {
+    data = await response.json();
+  } else {
+    data = await response.text();
+  }
+
+  if (!response.ok) {
+    // Throw error with message from server
+    const errorMessage = data?.error || data?.message || `Request failed with status ${response.status}`;
+    throw new Error(errorMessage);
+  }
+
+  return data;
+}
+
+// ============================================
+// DOM Event Listeners
+// ============================================
 document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('contact-form');
   if (form) form.addEventListener('submit', handleContactSubmit);

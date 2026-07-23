@@ -1,3 +1,6 @@
+// ============================================
+// API Configuration
+// ============================================
 // Point this at your deployed backend once it's live (e.g. Render URL).
 // For local development the frontend should use the local Node backend.
 const DEFAULT_API_BASE = window.location.protocol === 'file:'
@@ -5,28 +8,46 @@ const DEFAULT_API_BASE = window.location.protocol === 'file:'
   || window.location.hostname === '127.0.0.1'
   || !window.location.hostname
   ? 'http://localhost:4000'
-  : 'https://YOUR-BACKEND-URL.onrender.com';
-const API_BASE_CANDIDATES = [DEFAULT_API_BASE, 'http://localhost:4001', 'http://localhost:4002'];
+  : 'https://just-cell-it-5.onrender.com';
+
+const API_BASE_CANDIDATES = [
+  DEFAULT_API_BASE,
+  'https://just-cell-it-5.onrender.com',
+  'http://localhost:4000',
+  'http://localhost:4001',
+  'http://localhost:4002'
+];
+
 let resolvedApiBase = null;
 
 // Your Yoco hosted Payment Page. Replace with your own if this ever changes.
 const YOCO_PAY_URL = 'https://pay.yoco.com/just-cell-it1';
 
+// ============================================
+// Session Management
+// ============================================
 function getToken() {
   return localStorage.getItem('token');
 }
+
 function getUser() {
   const raw = localStorage.getItem('user');
   return raw ? JSON.parse(raw) : null;
 }
+
 function setSession(token, user) {
   localStorage.setItem('token', token);
   localStorage.setItem('user', JSON.stringify(user));
 }
+
 function clearSession() {
   localStorage.removeItem('token');
   localStorage.removeItem('user');
 }
+
+// ============================================
+// API Fetch Helper
+// ============================================
 async function apiFetch(path, options = {}) {
   const token = getToken();
   const headers = { 'Content-Type': 'application/json', ...(options.headers || {}) };
@@ -61,6 +82,9 @@ async function apiFetch(path, options = {}) {
   throw lastError || new Error('Could not reach the backend.');
 }
 
+// ============================================
+// Hero Carousel
+// ============================================
 function initHeroCarousel() {
   const heroImage = document.getElementById('hero-product-image');
   const heroName = document.getElementById('hero-product-name');
@@ -110,6 +134,9 @@ function initHeroCarousel() {
   });
 }
 
+// ============================================
+// Header Menu
+// ============================================
 function initHeaderMenu() {
   const toggle = document.querySelector('.menu-toggle');
   const controls = document.querySelector('.header-controls');
@@ -142,8 +169,9 @@ function initHeaderMenu() {
   });
 }
 
-// Updates header nav (Sign in / Register vs. account + Log out) on any page
-// that includes an element with id="nav-auth-slot".
+// ============================================
+// Auth Slot - Updates header nav
+// ============================================
 function renderAuthSlot() {
   const slot = document.getElementById('nav-auth-slot');
   if (!slot) return;
@@ -169,6 +197,10 @@ function renderAuthSlot() {
     `;
   }
 }
+
+// ============================================
+// DOM Event Listeners
+// ============================================
 document.addEventListener('DOMContentLoaded', () => {
   renderAuthSlot();
   initHeaderMenu();
