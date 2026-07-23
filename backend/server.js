@@ -621,8 +621,8 @@ async function startServer() {
 
   try {
     const port = await getAvailablePort(PORT || DEFAULT_PORT);
-    const server = app.listen(port, '127.0.0.1', () => {
-      console.log(`iPhone store backend running on http://127.0.0.1:${port}`);
+    const server = app.listen(port, '0.0.0.0', () => {
+      console.log(`iPhone store backend running on http://0.0.0.0:${port}`);
       process.env.REACT_APP_BACKEND_PORT = String(port);
     });
     server.on('error', (error) => {
