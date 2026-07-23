@@ -15,7 +15,7 @@ const db = require('./db');
 const { CONTACT_TO_EMAIL, sendContactEmail } = require('./mailer');
 
 const app = express();
-const DEFAULT_PORT = 4000;
+const DEFAULT_PORT = 3000;
 const PORT = Number(process.env.PORT || DEFAULT_PORT);
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5500';
 
