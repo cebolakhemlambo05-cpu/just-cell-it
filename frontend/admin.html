@@ -1,89 +1,200 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin Dashboard — Just Cell It</title>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="css/style.css" />
   <style>
-    .admin-shell { padding: 40px 0 70px; }
-    .admin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 24px; }
-    .admin-card { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow-sm); }
-    .admin-card h3 { font-size: 1rem; margin-bottom: 8px; }
-    .admin-card .value { font-size: 1.7rem; font-family: var(--font-display); font-weight: 700; }
-    .admin-panel { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow-sm); margin-bottom: 24px; }
-    .admin-panel h2 { font-size: 1.3rem; margin-bottom: 16px; }
-    .admin-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
-    .admin-form-grid .field { margin-bottom: 0; }
-    .admin-table { width: 100%; border-collapse: collapse; margin-top: 12px; }
-    .admin-table th, .admin-table td { padding: 10px; border-bottom: 1px solid var(--border); text-align: left; font-size: 0.9rem; }
-    .admin-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-    .pill { display: inline-flex; align-items: center; padding: 6px 10px; border-radius: 999px; background: var(--brand-tint); color: var(--brand-dim); font-size: 0.8rem; font-weight: 600; }
-    @media (max-width: 860px) { .admin-grid { grid-template-columns: 1fr 1fr; } .admin-form-grid { grid-template-columns: 1fr; } }
-    @media (max-width: 520px) { .admin-grid { grid-template-columns: 1fr; } }
+    .admin-shell {
+      padding: 40px 0 70px;
+    }
+
+    .admin-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .admin-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .admin-card h3 {
+      font-size: 1rem;
+      margin-bottom: 8px;
+    }
+
+    .admin-card .value {
+      font-size: 1.7rem;
+      font-family: var(--font-display);
+      font-weight: 700;
+    }
+
+    .admin-panel {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 24px;
+    }
+
+    .admin-panel h2 {
+      font-size: 1.3rem;
+      margin-bottom: 16px;
+    }
+
+    .admin-form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .admin-form-grid .field {
+      margin-bottom: 0;
+    }
+
+    .admin-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+
+    .admin-table th,
+    .admin-table td {
+      padding: 10px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      font-size: 0.9rem;
+    }
+
+    .admin-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--brand-tint);
+      color: var(--brand-dim);
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    @media (max-width: 860px) {
+      .admin-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .admin-form-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .admin-grid {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
 </head>
+
 <body>
-<header class="site-header">
-  <div class="container">
-    <a href="index.html" class="logo"><span class="bars"><span></span><span></span><span></span></span>Just Cell It</a>
-    <button class="menu-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false" aria-controls="site-nav">
-      <span></span><span></span><span></span>
-    </button>
-    <div class="header-controls" id="site-nav">
-      <nav class="nav-links">
-        <a href="catalog.html">Shop iPhones</a>
-        <a href="about.html">About</a>
-        <a href="contact.html">Contact Us</a>
-      </nav>
-      <div class="nav-actions" id="nav-auth-slot"></div>
+  <header class="site-header">
+    <div class="container">
+      <a href="index.html" class="logo">
+        <img
+          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTuFq9rDjspdY-DvhITLY7Bl7mDBZ3r731jjBeirZ5Xnu7Hc2VnAa3-Tjg&s=10"
+          alt="Just Cell It Logo"
+          style="width:70px; height:70px; object-fit:contain; border-radius:50%; vertical-align:middle;">
+      </a>
+      <button class="menu-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false"
+        aria-controls="site-nav">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="header-controls" id="site-nav">
+        <nav class="nav-links">
+          <a href="catalog.html">Shop iPhones</a>
+          <a href="about.html">About</a>
+          <a href="contact.html">Contact Us</a>
+        </nav>
+        <div class="nav-actions" id="nav-auth-slot"></div>
+      </div>
     </div>
-  </div>
-</header>
+  </header>
 
-<main class="admin-shell">
-  <div class="container">
-    <div class="admin-grid">
-      <div class="admin-card"><h3>Products</h3><div class="value" id="products-count">0</div></div>
-      <div class="admin-card"><h3>Orders</h3><div class="value" id="orders-count">0</div></div>
-      <div class="admin-card"><h3>Messages</h3><div class="value" id="messages-count">0</div></div>
-      <div class="admin-card"><h3>Pending</h3><div class="value" id="pending-count">0</div></div>
-      <div class="admin-card"><h3>Low stock</h3><div class="value" id="low-stock-count">0</div></div>
+  <main class="admin-shell">
+    <div class="container">
+      <div class="admin-grid">
+        <div class="admin-card">
+          <h3>Products</h3>
+          <div class="value" id="products-count">0</div>
+        </div>
+        <div class="admin-card">
+          <h3>Orders</h3>
+          <div class="value" id="orders-count">0</div>
+        </div>
+        <div class="admin-card">
+          <h3>Messages</h3>
+          <div class="value" id="messages-count">0</div>
+        </div>
+        <div class="admin-card">
+          <h3>Pending</h3>
+          <div class="value" id="pending-count">0</div>
+        </div>
+        <div class="admin-card">
+          <h3>Low stock</h3>
+          <div class="value" id="low-stock-count">0</div>
+        </div>
+      </div>
+
+      <div class="admin-panel">
+        <h2>Add product</h2>
+        <form id="product-form" class="admin-form-grid">
+          <div class="field"><label for="name">Name</label><input id="name" required /></div>
+          <div class="field"><label for="storage">Storage</label><input id="storage" required /></div>
+          <div class="field"><label for="color">Color</label><input id="color" required /></div>
+          <div class="field"><label for="price">Price</label><input id="price" type="number" min="0" required /></div>
+          <div class="field"><label for="stock">Stock</label><input id="stock" type="number" min="0" required /></div>
+          <div class="field"><label for="image">Image URL</label><input id="image" /></div>
+          <div class="field" style="grid-column: 1 / -1;"><label for="blurb">Blurb</label><input id="blurb" /></div>
+          <div style="grid-column: 1 / -1;"><button class="btn btn-primary" type="submit">Save product</button></div>
+        </form>
+      </div>
+
+      <div class="admin-panel">
+        <h2>Products</h2>
+        <div id="products-table"></div>
+      </div>
+
+      <div class="admin-panel">
+        <h2>Orders</h2>
+        <div id="orders-table"></div>
+      </div>
+
+      <div class="admin-panel">
+        <h2>Contact messages</h2>
+        <div id="messages-table"></div>
+      </div>
     </div>
+  </main>
 
-    <div class="admin-panel">
-      <h2>Add product</h2>
-      <form id="product-form" class="admin-form-grid">
-        <div class="field"><label for="name">Name</label><input id="name" required /></div>
-        <div class="field"><label for="storage">Storage</label><input id="storage" required /></div>
-        <div class="field"><label for="color">Color</label><input id="color" required /></div>
-        <div class="field"><label for="price">Price</label><input id="price" type="number" min="0" required /></div>
-        <div class="field"><label for="stock">Stock</label><input id="stock" type="number" min="0" required /></div>
-        <div class="field"><label for="image">Image URL</label><input id="image" /></div>
-        <div class="field" style="grid-column: 1 / -1;"><label for="blurb">Blurb</label><input id="blurb" /></div>
-        <div style="grid-column: 1 / -1;"><button class="btn btn-primary" type="submit">Save product</button></div>
-      </form>
-    </div>
-
-    <div class="admin-panel">
-      <h2>Products</h2>
-      <div id="products-table"></div>
-    </div>
-
-    <div class="admin-panel">
-      <h2>Orders</h2>
-      <div id="orders-table"></div>
-    </div>
-
-    <div class="admin-panel">
-      <h2>Contact messages</h2>
-      <div id="messages-table"></div>
-    </div>
-  </div>
-</main>
-
-<script src="js/config.js"></script>
-<script src="js/admin.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/admin.js"></script>
 </body>
+
 </html>

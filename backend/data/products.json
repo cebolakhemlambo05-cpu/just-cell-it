@@ -80,16 +80,6 @@
     "blurb": "A18 chip, Camera Control button, and Apple Intelligence on board."
   },
   {
-    "id": "ip16plus-256-ultramarine",
-    "name": "iPhone 16 Plus",
-    "storage": "256GB",
-    "color": "Ultramarine",
-    "price": 22999,
-    "stock": 9,
-    "image": "https://images.unsplash.com/photo-1663499482523-1c0c1bae4ce1?auto=format&fit=crop&w=600&q=80",
-    "blurb": "The bigger screen, same A18 power, all-day battery life."
-  },
-  {
     "id": "ip16pro-256-desert",
     "name": "iPhone 16 Pro",
     "storage": "256GB",
