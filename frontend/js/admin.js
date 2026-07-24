@@ -177,10 +177,18 @@ async function deleteProductRow(row) {
 // ============================================
 async function createProduct(event) {
   event.preventDefault();
-  
-  const submitBtn = document.getElementById('create-product-btn');
-  submitBtn.disabled = true;
-  submitBtn.textContent = 'Creating...';
+
+  // event.submitter is the actual button that triggered this submit — this
+  // works regardless of what id (if any) that button has in admin.html.
+  // Falls back to searching for any submit button inside the form, and
+  // finally to null (the code below already guards every use of submitBtn).
+  const submitBtn = event.submitter || document.querySelector('#product-form button[type="submit"]') || null;
+  const originalText = submitBtn ? submitBtn.textContent : '';
+
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Creating...';
+  }
 
   try {
     const payload = {
@@ -197,14 +205,16 @@ async function createProduct(event) {
       method: 'POST',
       body: JSON.stringify(payload),
     });
-    
+
     document.getElementById('product-form').reset();
     loadDashboard();
   } catch (err) {
     alert('Error creating product: ' + err.message);
   } finally {
-    submitBtn.disabled = false;
-    submitBtn.textContent = 'Create Product';
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = originalText || 'Save product';
+    }
   }
 }
 

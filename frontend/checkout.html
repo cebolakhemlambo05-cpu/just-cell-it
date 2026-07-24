@@ -288,7 +288,12 @@
     }
   </style>
 
-  <script src="js/config.js"></script>
+  <!-- config.js removed: checkout.js is self-contained (it already defines
+       its own API_BASE_URL, getToken, apiFetch, and YOCO_PAY_URL). Loading
+       both meant config.js declared YOCO_PAY_URL first, and checkout.js's
+       own declaration then crashed with "already been declared" — which
+       silently killed every script on this page, including the delivery
+       form's button logic. -->
   <script src="js/checkout.js"></script>
 </body>
 
