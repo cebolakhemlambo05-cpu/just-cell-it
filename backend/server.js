@@ -56,6 +56,14 @@ app.use(cors({
 // app.use(express.json()) below guarantees this exact route gets the raw
 // bytes, while every other route still gets normal JSON parsing.
 //
+// NOTE: with /api/checkout now sending customers to your static Yoco
+// Payment Page (see below) instead of a dynamically-created Checkout, this
+// webhook currently has no reliable way to match an incoming payment back to
+// a specific order (the static page can't carry your internal reference).
+// It's left in place, dormant, for when you switch back to the Checkout API
+// once your Yoco account's API/webhook access is verified — at that point
+// checkoutId-based matching will work again automatically.
+//
 // Docs: https://developer.yoco.com/online/api-reference/webhooks/verifying-events/
 function verifyYocoWebhookSignature(rawBody, headers, webhookSecret) {
   const webhookId = headers['webhook-id'];
@@ -530,19 +538,24 @@ function sanitizeDelivery(delivery) {
   };
 }
 
-// ---------- Yoco checkout ----------
-// Docs: https://developer.yoco.com/guides/online-payments/accepting-a-payment
+// ---------- Order creation ----------
+// This currently does NOT call Yoco's Checkout API. It validates delivery
+// details and saves the order as 'pending' so you have a real record for
+// the courier — the customer is then sent from the FRONTEND straight to
+// your static Yoco Payment Page (https://pay.yoco.com/just-cell-it1).
 //
-// Flow: 1) your server creates a Checkout via Yoco's API and gets back a
-// redirectUrl, 2) the browser is sent to that Yoco-hosted page, 3) Yoco
-// notifies your server via the /api/yoco-webhook route above once payment
-// actually succeeds — that webhook is the ONLY thing allowed to mark an
-// order 'paid' and deduct stock. The success/cancel/failure redirect URLs
-// below are for the customer's browser experience ONLY; never trust them to
-// confirm payment (a customer could land on the "success" URL without
-// paying by editing the address bar).
-const YOCO_API_BASE = 'https://payments.yoco.com/api';
-
+// This is a deliberate, temporary simplification while your Yoco account's
+// API/webhook access is still pending verification (see the "Action
+// required" banner on your Yoco dashboard).
+//
+// LIMITATION: because the static Payment Page has no way to receive your
+// internal order reference, a payment made there can't be automatically
+// matched back to this order — orders created here will stay 'pending' in
+// your admin dashboard even after the customer actually pays, until either:
+//   (a) you switch back to the dynamic Checkout API once Yoco verifies your
+//       account (the webhook handler above is already built and ready), or
+//   (b) you manually mark orders as 'paid' in your admin panel/database
+//       after checking your Yoco sales history.
 app.post('/api/checkout', requireAuth, async (req, res) => {
   const { productId, quantity, delivery } = req.body;
   const qty = Math.max(1, parseInt(quantity, 10) || 1);
@@ -556,41 +569,11 @@ app.post('/api/checkout', requireAuth, async (req, res) => {
   if (product.stock < qty) return res.status(400).json({ error: 'Not enough stock available.' });
 
   const amountRands = product.price * qty;
-  const amountCents = Math.round(amountRands * 100); // Yoco expects the smallest currency unit
   const reference = `ORD-${Date.now()}-${crypto.randomBytes(3).toString('hex')}`;
-
-  let yocoCheckout;
-  try {
-    const yocoRes = await fetch(`${YOCO_API_BASE}/checkouts`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${process.env.YOCO_SECRET_KEY}`,
-      },
-      body: JSON.stringify({
-        amount: amountCents,
-        currency: 'ZAR',
-        successUrl: `${FRONTEND_URL}/checkout.html?status=success&ref=${reference}`,
-        cancelUrl: `${FRONTEND_URL}/checkout.html?status=cancelled&ref=${reference}`,
-        failureUrl: `${FRONTEND_URL}/checkout.html?status=error&ref=${reference}`,
-        metadata: { reference },
-      }),
-    });
-
-    yocoCheckout = await yocoRes.json();
-    if (!yocoRes.ok) {
-      console.error('Yoco checkout creation failed:', yocoCheckout);
-      return res.status(502).json({ error: 'Could not start payment. Please try again.' });
-    }
-  } catch (error) {
-    console.error('Yoco checkout request error:', error.message);
-    return res.status(502).json({ error: 'Could not reach the payment provider. Please try again.' });
-  }
 
   const orders = db.getOrders();
   orders.push({
     reference,
-    yocoCheckoutId: yocoCheckout.id,
     userId: req.userId,
     productId,
     quantity: qty,
@@ -601,7 +584,7 @@ app.post('/api/checkout', requireAuth, async (req, res) => {
   });
   db.saveOrders(orders);
 
-  res.status(201).json({ redirectUrl: yocoCheckout.redirectUrl, reference });
+  res.status(201).json({ reference, amount: amountRands });
 });
 
 // Lets the checkout page poll for the current status of an order.
@@ -620,7 +603,7 @@ async function getAvailablePort(startPort) {
       tester.once('listening', () => {
         tester.close(() => resolve(true));
       });
-      tester.listen(port, '127.0.0.1');
+      tester.listen(port, '0.0.0.0');
     });
 
     if (available) return port;

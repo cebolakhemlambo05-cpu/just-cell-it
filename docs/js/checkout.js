@@ -10,7 +10,8 @@ const params = new URLSearchParams(window.location.search);
 let currentProduct = null;
 let quantity = 1;
 
-// Your Yoco hosted Payment Page
+// Your Yoco hosted Payment Page — customers are sent here after their order
+// (with delivery details) is saved on your backend.
 const YOCO_PAY_URL = 'https://pay.yoco.com/just-cell-it1';
 
 // ============================================
@@ -113,6 +114,15 @@ function renderSummary() {
 // ============================================
 // Delivery Form
 // ============================================
+
+// Reads a field's value safely — returns '' instead of throwing if the
+// element isn't found, so a markup mismatch degrades to "field required"
+// rather than silently breaking every listener on the page.
+function fieldValue(id) {
+  const el = document.getElementById(id);
+  return el ? el.value.trim() : '';
+}
+
 function getDeliveryMethod() {
   const checked = document.querySelector('input[name="delivery-method"]:checked');
   return checked ? checked.value : 'address';
@@ -120,8 +130,10 @@ function getDeliveryMethod() {
 
 function toggleDeliveryFields() {
   const method = getDeliveryMethod();
-  document.getElementById('address-fields').style.display = method === 'address' ? 'block' : 'none';
-  document.getElementById('pep-fields').style.display = method === 'pep' ? 'block' : 'none';
+  const addressFields = document.getElementById('address-fields');
+  const pepFields = document.getElementById('pep-fields');
+  if (addressFields) addressFields.style.display = method === 'address' ? 'block' : 'none';
+  if (pepFields) pepFields.style.display = method === 'pep' ? 'block' : 'none';
   updatePayButtonState();
 }
 
@@ -129,27 +141,27 @@ function collectDeliveryDetails() {
   const method = getDeliveryMethod();
   const base = {
     method,
-    name: document.getElementById('d-name').value.trim(),
-    phone: document.getElementById('d-phone').value.trim(),
-    email: document.getElementById('d-email').value.trim(),
+    name: fieldValue('d-name'),
+    phone: fieldValue('d-phone'),
+    email: fieldValue('d-email'),
   };
 
   if (method === 'address') {
     return {
       ...base,
-      street: document.getElementById('d-street').value.trim(),
-      suburb: document.getElementById('d-suburb').value.trim(),
-      city: document.getElementById('d-city').value.trim(),
-      province: document.getElementById('d-province').value,
-      postalCode: document.getElementById('d-postal').value.trim(),
-      instructions: document.getElementById('d-instructions').value.trim(),
+      street: fieldValue('d-street'),
+      suburb: fieldValue('d-suburb'),
+      city: fieldValue('d-city'),
+      province: fieldValue('d-province'),
+      postalCode: fieldValue('d-postal'),
+      instructions: fieldValue('d-instructions'),
     };
   }
 
   return {
     ...base,
-    pepStore: document.getElementById('d-pep-store').value.trim(),
-    pepSuburb: document.getElementById('d-pep-suburb').value.trim(),
+    pepStore: fieldValue('d-pep-store'),
+    pepSuburb: fieldValue('d-pep-suburb'),
   };
 }
 
@@ -179,6 +191,7 @@ function validateDelivery(details) {
 
 function updatePayButtonState() {
   const btn = document.getElementById('pay-btn');
+  if (!btn) return;
   const details = collectDeliveryDetails();
   const error = validateDelivery(details);
   btn.disabled = Boolean(error);
@@ -189,54 +202,33 @@ function attachDeliveryListeners() {
   document.querySelectorAll('input[name="delivery-method"]').forEach((radio) => {
     radio.addEventListener('change', toggleDeliveryFields);
   });
-  document.getElementById('delivery-card').addEventListener('input', updatePayButtonState);
-  document.getElementById('delivery-card').addEventListener('change', updatePayButtonState);
+
+  document.addEventListener('input', updatePayButtonState);
+  document.addEventListener('change', updatePayButtonState);
+
   toggleDeliveryFields();
 }
 
 // ============================================
-// Payment Processing
+// Payment Processing - NO API CALL
 // ============================================
-async function processOrder() {
+function processOrder() {
   const btn = document.getElementById('pay-btn');
-  btn.disabled = true;
-  btn.textContent = 'Processing...';
-
+  
   const delivery = collectDeliveryDetails();
   const error = validateDelivery(delivery);
+  
   if (error) {
     showCheckoutError(error);
-    btn.disabled = false;
-    btn.textContent = 'Pay Now';
     return;
   }
 
-  try {
-    const response = await apiFetch('/api/checkout', {
-      method: 'POST',
-      body: JSON.stringify({
-        productId: currentProduct.id,
-        quantity: quantity,
-        delivery: delivery,
-      }),
-    });
-
-    // Redirect to Yoco payment page
-    if (response.redirectUrl) {
-      window.location.href = response.redirectUrl;
-    } else {
-      throw new Error('No redirect URL received from server');
-    }
-  } catch (err) {
-    showCheckoutError(err.message || 'Could not start payment. Please try again.');
-    btn.disabled = false;
-    btn.textContent = 'Pay Now';
-  }
+  // ✅ Simply redirect to Yoco Payment Page - NO API call
+  window.location.href = YOCO_PAY_URL;
 }
 
 function goToYoco() {
-  // This is now handled by processOrder() which uses the backend API
-  // Keep this for backwards compatibility
+  // Kept for backwards compatibility — processOrder() does the real work.
   processOrder();
 }
 
@@ -246,7 +238,8 @@ function showCheckoutError(message) {
     box = document.createElement('div');
     box.id = 'checkout-error';
     box.className = 'alert alert-error show';
-    document.querySelector('.pay-card').prepend(box);
+    const payCard = document.querySelector('.pay-card');
+    if (payCard) payCard.prepend(box);
   }
   box.textContent = message;
   box.classList.add('show');
@@ -256,9 +249,12 @@ function showCheckoutError(message) {
 // Status View
 // ============================================
 function renderStatus(status, reference) {
-  document.getElementById('order-view').style.display = 'none';
-  document.getElementById('status-view').style.display = 'block';
+  const orderView = document.getElementById('order-view');
+  const statusView = document.getElementById('status-view');
+  if (orderView) orderView.style.display = 'none';
+  if (statusView) statusView.style.display = 'block';
   const card = document.getElementById('status-card');
+  if (!card) return;
 
   const views = {
     success: {
@@ -300,11 +296,11 @@ function initOrderView() {
     document.getElementById('summary-card').innerHTML = `<p>No product selected. <a href="catalog.html" style="color:var(--accent)">Back to shop</a></p>`;
     return;
   }
-  
+
   apiFetch(`/api/products/${productId}`)
-    .then((product) => { 
-      currentProduct = product; 
-      renderSummary(); 
+    .then((product) => {
+      currentProduct = product;
+      renderSummary();
     })
     .catch(() => {
       document.getElementById('summary-card').innerHTML = `<p>Couldn't load that product. <a href="catalog.html" style="color:var(--accent)">Back to shop</a></p>`;
@@ -312,10 +308,13 @@ function initOrderView() {
 
   attachDeliveryListeners();
 
-  document.getElementById('pay-btn').addEventListener('click', () => {
-    if (!currentProduct) return;
-    processOrder();
-  });
+  const payBtn = document.getElementById('pay-btn');
+  if (payBtn) {
+    payBtn.addEventListener('click', () => {
+      if (!currentProduct) return;
+      processOrder();
+    });
+  }
 }
 
 // ============================================
