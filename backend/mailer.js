@@ -1,6 +1,6 @@
 const nodemailer = require('nodemailer');
 
-const CONTACT_TO_EMAIL = process.env.CONTACT_TO_EMAIL || 'justcellitza826@gmail.com';
+const CONTACT_TO_EMAIL = process.env.CONTACT_TO_EMAIL || 'hello@mobilehub.co.za';
 
 function getMailerConfig() {
   const host = process.env.SMTP_HOST;
@@ -25,7 +25,7 @@ async function sendContactEmail(contactMessage) {
   }
 
   const transporter = nodemailer.createTransport(config);
-  const from = process.env.MAIL_FROM || `"Just Cell It Website" <${config.auth.user}>`;
+  const from = process.env.MAIL_FROM || `"MobileHub Website" <${config.auth.user}>`;
   const replyTo = contactMessage.email;
 
   await transporter.sendMail({
@@ -34,7 +34,7 @@ async function sendContactEmail(contactMessage) {
     replyTo,
     subject: `Website enquiry: ${contactMessage.subject}`,
     text: [
-      `New Just Cell It website enquiry`,
+      `New MobileHub website enquiry`,
       ``,
       `Name: ${contactMessage.name}`,
       `Email: ${contactMessage.email}`,
@@ -44,7 +44,7 @@ async function sendContactEmail(contactMessage) {
       contactMessage.message,
     ].join('\n'),
     html: `
-      <h2>New Just Cell It website enquiry</h2>
+      <h2>New MobileHub website enquiry</h2>
       <p><strong>Name:</strong> ${escapeHtml(contactMessage.name)}</p>
       <p><strong>Email:</strong> ${escapeHtml(contactMessage.email)}</p>
       <p><strong>Phone:</strong> ${escapeHtml(contactMessage.phone || 'Not provided')}</p>

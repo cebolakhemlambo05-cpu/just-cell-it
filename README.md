@@ -1,4 +1,4 @@
-# Signal — iPhone store starter
+# MobileHub — iPhone store starter
 
 A static front-end (home, about, contact, registration, login, catalog,
 checkout, and admin) plus a small Node.js backend that handles accounts,
@@ -34,7 +34,7 @@ you're on localhost.
 The backend creates or repairs the default admin account on startup:
 
 ```text
-Email: admin@justcellit.com
+Email: admin@mobilehub.co.za
 Password: admin123456
 ```
 
@@ -71,13 +71,13 @@ To enable email delivery, add SMTP settings to `backend/.env` or your deployed
 backend environment variables:
 
 ```text
-CONTACT_TO_EMAIL=justcellitza826@gmail.com
+CONTACT_TO_EMAIL=hello@mobilehub.co.za
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
 SMTP_SECURE=false
 SMTP_USER=your_sending_email@gmail.com
 SMTP_PASS=your_gmail_app_password_here
-MAIL_FROM="Just Cell It Website <your_sending_email@gmail.com>"
+MAIL_FROM="MobileHub Website <your_sending_email@gmail.com>"
 ```
 
 For Gmail, `SMTP_PASS` must be an app password, not the normal mailbox password.

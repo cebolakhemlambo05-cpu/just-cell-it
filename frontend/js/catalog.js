@@ -1,7 +1,11 @@
 // ============================================
 // API Configuration
 // ============================================
-const API_BASE_URL = 'https://just-cell-it-5.onrender.com';
+const API_BASE_URL = window.MOBILEHUB_API_URL || (
+  window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:3001'
+    : window.location.origin
+);
 
 // ============================================
 // Helper Functions
@@ -47,7 +51,6 @@ async function apiFetch(path, options = {}) {
 
   const response = await fetch(`${API_BASE_URL}${path}`, { ...options, headers });
 
-  // Handle non-JSON responses
   const contentType = response.headers.get('content-type');
   let data;
   if (contentType && contentType.includes('application/json')) {
@@ -81,10 +84,10 @@ async function loadProducts() {
     const products = await apiFetch('/api/products');
     grid.innerHTML = products.map((p) => `
       <div class="card">
-        <div class="thumb"><img src="${p.image}" alt="${p.name} in ${p.color}" loading="lazy" /></div>
+        <div class="thumb"><img src="${p.image || 'https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?auto=format&fit=crop&w=900&q=80'}" alt="${p.name} in ${p.color}" loading="lazy" /></div>
         <h3>${p.name}</h3>
         <div class="meta">${p.storage} · ${p.color}</div>
-        <p class="blurb">${p.blurb}</p>
+        <p class="blurb">${p.blurb || 'Pre-owned device available now.'}</p>
         <div class="stock-label">
           <span class="stock-bars ${stockTier(p.stock)}"><span></span><span></span><span></span><span></span></span>
           ${stockLabel(p.stock)}

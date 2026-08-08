@@ -18,7 +18,7 @@ const app = express();
 // Add this root route
 app.get('/', (req, res) => {
   res.json({ 
-    message: 'Just Cell It API is running! 🚀',
+    message: 'MobileHub API is running! 🚀',
     endpoints: {
       products: '/api/products',
       register: '/api/register',
@@ -613,12 +613,18 @@ async function getAvailablePort(startPort) {
 }
 
 async function startServer() {
+  try {
+    await db.init();
+  } catch (error) {
+    console.error('Database initialization failed:', error.message);
+  }
+
   await ensureAdminUser();
 
   try {
     const port = await getAvailablePort(PORT || DEFAULT_PORT);
     const server = app.listen(port, '0.0.0.0', () => {
-      console.log(`iPhone store backend running on http://0.0.0.0:${port}`);
+      console.log(`MobileHub backend running on http://0.0.0.0:${port}`);
       process.env.REACT_APP_BACKEND_PORT = String(port);
     });
     server.on('error', (error) => {

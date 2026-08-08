@@ -5,13 +5,13 @@ window.EMAILJS_CONFIG = {
   publicKey: 'Bks9rsSKCUPXt3gmF',
   serviceId: 'service_mofucjc',
   templateId: 'template_ur69x5u',
-  toEmail: 'justcellitza826@gmail.com',
+  toEmail: 'hello@mobilehub.co.za',
 };
 
 // ============================================
 // API Configuration
 // ============================================
-const API_BASE_URL = 'https://just-cell-it-5.onrender.com';
+const API_BASE_URL = 'http://localhost:4000';
 
 // ============================================
 // Contact Form Handler (Optional)

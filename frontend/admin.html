@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin Dashboard — Just Cell It</title>
+  <title>Admin Dashboard — MobileHub</title>
   <link
     href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"
     rel="stylesheet">
@@ -118,8 +118,8 @@
     <div class="container">
       <a href="index.html" class="logo">
         <img
-          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTuFq9rDjspdY-DvhITLY7Bl7mDBZ3r731jjBeirZ5Xnu7Hc2VnAa3-Tjg&s=10"
-          alt="Just Cell It Logo"
+          src="../images/MibileHeb_Logo.png"
+          alt="MobileHub Logo"
           style="width:70px; height:70px; object-fit:contain; border-radius:50%; vertical-align:middle;">
       </a>
       <button class="menu-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false"
@@ -193,6 +193,11 @@
     </div>
   </main>
 
+  <!-- Local dev override: points the frontend at your locally running
+       backend port. Remove or comment this out before deploying live —
+       on your live site MOBILEHUB_API_URL should be unset (or set to
+       your Render URL) so it doesn't try to reach localhost. -->
+  <script>window.MOBILEHUB_API_URL = 'http://localhost:3002';</script>
   <script src="js/config.js"></script>
   <script src="js/admin.js"></script>
 </body>

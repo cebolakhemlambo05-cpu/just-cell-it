@@ -3,16 +3,15 @@
 // ============================================
 // Point this at your deployed backend once it's live (e.g. Render URL).
 // For local development the frontend should use the local Node backend.
-const DEFAULT_API_BASE = window.location.protocol === 'file:'
-  || window.location.hostname === 'localhost'
-  || window.location.hostname === '127.0.0.1'
-  || !window.location.hostname
-  ? 'http://localhost:4000'
-  : 'https://just-cell-it-5.onrender.com';
+const DEFAULT_API_BASE = window.MOBILEHUB_API_URL || (
+  window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:3001'
+    : window.location.origin
+);
 
 const API_BASE_CANDIDATES = [
   DEFAULT_API_BASE,
-  'https://just-cell-it-5.onrender.com',
+  'http://localhost:3001',
   'http://localhost:4000',
   'http://localhost:4001',
   'http://localhost:4002'

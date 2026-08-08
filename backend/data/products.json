@@ -1,102 +1,62 @@
 [
   {
-    "id": "ip15-128-black",
+    "id": "iphone-15",
     "name": "iPhone 15",
     "storage": "128GB",
     "color": "Black",
     "price": 17999,
     "stock": 12,
-    "image": "https://images.unsplash.com/photo-1697284959429-19c9c5c7a3e2?auto=format&fit=crop&w=600&q=80",
-    "blurb": "The everyday iPhone. A16 Bionic, 48MP main camera, USB-C."
+    "image": "https://images.unsplash.com/photo-1678652852238-7440a0f7d942?auto=format&fit=crop&w=900&q=80",
+    "blurb": "The everyday iPhone with a bright display and strong battery life."
   },
   {
-    "id": "ip15pro-256-titanium",
+    "id": "iphone-15-pro",
     "name": "iPhone 15 Pro",
     "storage": "256GB",
     "color": "Natural Titanium",
     "price": 27999,
     "stock": 8,
-    "image": "https://images.unsplash.com/photo-1696446701796-da61225697cc?auto=format&fit=crop&w=600&q=80",
+    "image": "https://images.unsplash.com/photo-1697284959429-19c9c5c7a3e2?auto=format&fit=crop&w=900&q=80",
     "blurb": "Titanium build, A17 Pro chip, and the Action button."
   },
   {
-    "id": "ip15promax-512-blue",
+    "id": "iphone-15-pro-max",
     "name": "iPhone 15 Pro Max",
     "storage": "512GB",
     "color": "Blue Titanium",
     "price": 34999,
     "stock": 5,
-    "image": "https://images.unsplash.com/photo-1695048133142-1a20484d2569?auto=format&fit=crop&w=600&q=80",
-    "blurb": "5x telephoto, the biggest screen, all-day battery life."
+    "image": "https://images.unsplash.com/photo-1663499482523-1c0c1bae4ce1?auto=format&fit=crop&w=900&q=80",
+    "blurb": "5x telephoto, the biggest screen, and all-day battery life."
   },
   {
-    "id": "ip14-128-blue",
+    "id": "iphone-14",
     "name": "iPhone 14",
     "storage": "128GB",
     "color": "Blue",
     "price": 14999,
     "stock": 15,
-    "image": "https://images.unsplash.com/photo-1663499482523-1c0c1bae4ce1?auto=format&fit=crop&w=600&q=80",
+    "image": "https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?auto=format&fit=crop&w=900&q=80",
     "blurb": "Great value, Crash Detection, and a 12MP dual-camera system."
   },
   {
-    "id": "ip13-128-midnight",
+    "id": "iphone-13",
     "name": "iPhone 13",
     "storage": "128GB",
     "color": "Midnight",
     "price": 11999,
     "stock": 20,
-    "image": "https://images.unsplash.com/photo-1632661674596-df8be070a5c5?auto=format&fit=crop&w=600&q=80",
+    "image": "https://images.unsplash.com/photo-1632661674596-df8be070a5c5?auto=format&fit=crop&w=900&q=80",
     "blurb": "Still fast, still capable, still an iPhone. Best budget pick."
   },
   {
-    "id": "ipse-64-starlight",
+    "id": "iphone-se",
     "name": "iPhone SE",
     "storage": "64GB",
     "color": "Starlight",
     "price": 8999,
     "stock": 10,
-    "image": "https://images.unsplash.com/photo-1616348436168-de43ad0db179?auto=format&fit=crop&w=600&q=80",
+    "image": "https://images.unsplash.com/photo-1616348436168-de43ad0db179?auto=format&fit=crop&w=900&q=80",
     "blurb": "Classic form, A15 chip, Touch ID. The lightest way in."
-  },
-  {
-    "id": "ip12-64-purple",
-    "name": "iPhone 12",
-    "storage": "64GB",
-    "color": "Purple",
-    "price": 9499,
-    "stock": 14,
-    "image": "https://images.unsplash.com/photo-1632661674596-df8be070a5c5?auto=format&fit=crop&w=600&q=80",
-    "blurb": "The one that started the flat-edge design. Still reliable, still capable."
-  },
-  {
-    "id": "ip16-128-black",
-    "name": "iPhone 16",
-    "storage": "128GB",
-    "color": "Black",
-    "price": 19999,
-    "stock": 11,
-    "image": "https://images.unsplash.com/photo-1697284959429-19c9c5c7a3e2?auto=format&fit=crop&w=600&q=80",
-    "blurb": "A18 chip, Camera Control button, and Apple Intelligence on board."
-  },
-  {
-    "id": "ip16pro-256-desert",
-    "name": "iPhone 16 Pro",
-    "storage": "256GB",
-    "color": "Desert Titanium",
-    "price": 29999,
-    "stock": 7,
-    "image": "https://images.unsplash.com/photo-1696446701796-da61225697cc?auto=format&fit=crop&w=600&q=80",
-    "blurb": "A18 Pro, 5x telephoto, and the brightest display yet on a Pro."
-  },
-  {
-    "id": "ip16promax-512-titanium",
-    "name": "iPhone 16 Pro Max",
-    "storage": "512GB",
-    "color": "Black Titanium",
-    "price": 37999,
-    "stock": 4,
-    "image": "https://images.unsplash.com/photo-1695048133142-1a20484d2569?auto=format&fit=crop&w=600&q=80",
-    "blurb": "The largest, most capable iPhone available. Built for power users."
   }
 ]

@@ -1,7 +1,11 @@
 // ============================================
 // API Configuration
 // ============================================
-const API_BASE_URL = 'https://just-cell-it-5.onrender.com';
+const API_BASE_URL = window.MOBILEHUB_API_URL || (
+  window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:3001'
+    : window.location.origin
+);
 
 // ============================================
 // Constants & State

@@ -1,7 +1,11 @@
 // ============================================
 // API Configuration
 // ============================================
-const API_BASE_URL = 'https://just-cell-it-5.onrender.com';
+const API_BASE_URL = window.MOBILEHUB_API_URL || (
+  window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:3001'
+    : window.location.origin
+);
 
 // ============================================
 // Contact Form Handler
@@ -36,7 +40,7 @@ async function handleContactSubmit(event) {
     });
 
     successBox.textContent = sentWithEmailJs
-      ? 'Thanks. Your enquiry was sent to Just Cell It.'
+      ? 'Thanks. Your enquiry was sent to MobileHub.'
       : response.message;
     successBox.classList.add('show');
     form.reset();

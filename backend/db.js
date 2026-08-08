@@ -10,6 +10,16 @@ const FILES = {
   messages: path.join(DATA_DIR, 'messages.json'),
 };
 
+const state = {
+  users: [],
+  sessions: {},
+  products: [],
+  orders: [],
+  messages: [],
+};
+
+let initialized = false;
+
 function ensureDataStore() {
   if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
   Object.values(FILES).forEach((file) => {
@@ -41,29 +51,129 @@ function writeCollection(name, data) {
   writeJson(FILES[name], data);
 }
 
-ensureDataStore();
+async function initializeDataStore() {
+  ensureDataStore();
+  state.users = readCollection('users');
+  state.sessions = readCollection('sessions');
+  state.products = readCollection('products');
+  state.orders = readCollection('orders');
+  state.messages = readCollection('messages');
+  initialized = true;
+}
+
+function getUsers() {
+  return state.users;
+}
+
+function saveUsers(users) {
+  state.users = users;
+  writeCollection('users', users);
+}
+
+function getUserById(userId) {
+  return state.users.find((user) => user.id === userId) || null;
+}
+
+function getSessions() {
+  return state.sessions;
+}
+
+function saveSessions(sessions) {
+  state.sessions = sessions;
+  writeCollection('sessions', sessions);
+}
+
+function getProducts() {
+  return state.products;
+}
+
+function saveProducts(products) {
+  state.products = products;
+  writeCollection('products', products);
+}
+
+function getProductById(productId) {
+  return state.products.find((product) => product.id === productId) || null;
+}
+
+function getOrders() {
+  return state.orders;
+}
+
+function saveOrders(orders) {
+  state.orders = orders;
+  writeCollection('orders', orders);
+}
+
+function getMessages() {
+  return state.messages;
+}
+
+function saveMessages(messages) {
+  state.messages = messages;
+  writeCollection('messages', messages);
+}
+
+function createMessage(message) {
+  const nextMessages = [...state.messages, message];
+  state.messages = nextMessages;
+  writeCollection('messages', nextMessages);
+  return message;
+}
 
 module.exports = {
-  getUsers: () => readCollection('users'),
-  saveUsers: (users) => writeCollection('users', users),
-  getUserById: (userId) => readCollection('users').find((user) => user.id === userId) || null,
+  init: initializeDataStore,
+  isInitialized: () => initialized,
+  getUsers,
+  saveUsers,
+  getUserById,
+  getSessions,
+  saveSessions,
+  getProducts,
+  saveProducts,
+  getProductById,
+  getOrders,
+  saveOrders,
+  getMessages,
+  saveMessages,
+  createMessage,
+};
 
-  getSessions: () => readCollection('sessions'),
-  saveSessions: (sessions) => writeCollection('sessions', sessions),
+function saveOrders(orders) {
+  state.orders = orders;
+  writeCollection('orders', orders);
+}
 
-  getProducts: () => readCollection('products'),
-  saveProducts: (products) => writeCollection('products', products),
-  getProductById: (productId) => readCollection('products').find((product) => product.id === productId) || null,
+function getMessages() {
+  return state.messages;
+}
 
-  getOrders: () => readCollection('orders'),
-  saveOrders: (orders) => writeCollection('orders', orders),
+function saveMessages(messages) {
+  state.messages = messages;
+  writeCollection('messages', messages);
+}
 
-  getMessages: () => readCollection('messages'),
-  saveMessages: (messages) => writeCollection('messages', messages),
-  createMessage: (message) => {
-    const messages = readCollection('messages');
-    messages.push(message);
-    writeCollection('messages', messages);
-    return message;
-  },
+function createMessage(message) {
+  const nextMessages = [...state.messages, message];
+  state.messages = nextMessages;
+  writeCollection('messages', nextMessages);
+  return message;
+}
+
+module.exports = {
+  init: initializeDataStore,
+  isInitialized: () => initialized,
+  getUsers,
+  saveUsers,
+  getUserById,
+  getSessions,
+  saveSessions,
+  getProducts,
+  saveProducts,
+  getProductById,
+  getOrders,
+  saveOrders,
+  getMessages,
+  saveMessages,
+  createMessage,
 };
