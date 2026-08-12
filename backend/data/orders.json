@@ -1,0 +1,114 @@
+[
+  {
+    "reference": "ORD-1786553558022-44DE3B",
+    "userId": "a4ea0bf7-e0a6-4b88-8a19-e973018f64ed",
+    "productId": "iphone-13-128gb-midnight",
+    "productSnapshot": {
+      "name": "iPhone 13",
+      "storage": "128GB",
+      "color": "Midnight",
+      "unitPrice": 6999
+    },
+    "quantity": 1,
+    "amount": 6999,
+    "paymentMethod": "bank_transfer",
+    "status": "awaiting_payment",
+    "delivery": {
+      "method": "address",
+      "name": "Cebolakhe",
+      "phone": "+27660340946",
+      "email": "cebolakhemlambo05@gmail.com",
+      "street": "eaitwr",
+      "suburb": "euy5h",
+      "city": "8rt4wugj",
+      "province": "KwaZulu-Natal",
+      "postalCode": "3546",
+      "instructions": ""
+    },
+    "createdAt": "2026-08-12T16:52:38.023Z"
+  },
+  {
+    "reference": "ORD-1786553998904-E854B5",
+    "userId": "a4ea0bf7-e0a6-4b88-8a19-e973018f64ed",
+    "productId": "iphone-14-128gb-blue",
+    "productSnapshot": {
+      "name": "iPhone 14",
+      "storage": "128GB",
+      "color": "Blue",
+      "unitPrice": 8999
+    },
+    "quantity": 1,
+    "amount": 8999,
+    "paymentMethod": "bank_transfer",
+    "status": "awaiting_payment",
+    "delivery": {
+      "method": "address",
+      "name": "Cebolakhe",
+      "phone": "+27660340946",
+      "email": "cebolakhemlambo05@gmail.com",
+      "street": "eaitwr",
+      "suburb": "euy5h",
+      "city": "8rt4wugj",
+      "province": "KwaZulu-Natal",
+      "postalCode": "3546",
+      "instructions": ""
+    },
+    "createdAt": "2026-08-12T16:59:58.904Z"
+  },
+  {
+    "reference": "ORD-1786554126501-4D7097",
+    "userId": "a4ea0bf7-e0a6-4b88-8a19-e973018f64ed",
+    "productId": "iphone-14-128gb-blue",
+    "productSnapshot": {
+      "name": "iPhone 14",
+      "storage": "128GB",
+      "color": "Blue",
+      "unitPrice": 8999
+    },
+    "quantity": 1,
+    "amount": 8999,
+    "paymentMethod": "bank_transfer",
+    "status": "awaiting_payment",
+    "delivery": {
+      "method": "address",
+      "name": "Cebolakhe",
+      "phone": "+27660340946",
+      "email": "cebolakhemlambo05@gmail.com",
+      "street": "eaitwr",
+      "suburb": "euy5h",
+      "city": "8rt4wugj",
+      "province": "KwaZulu-Natal",
+      "postalCode": "3546",
+      "instructions": ""
+    },
+    "createdAt": "2026-08-12T17:02:06.502Z"
+  },
+  {
+    "reference": "ORD-1786554249173-388088",
+    "userId": "a4ea0bf7-e0a6-4b88-8a19-e973018f64ed",
+    "productId": "iphone-14-128gb-blue",
+    "productSnapshot": {
+      "name": "iPhone 14",
+      "storage": "128GB",
+      "color": "Blue",
+      "unitPrice": 8999
+    },
+    "quantity": 1,
+    "amount": 8999,
+    "paymentMethod": "bank_transfer",
+    "status": "awaiting_payment",
+    "delivery": {
+      "method": "address",
+      "name": "Cebolakhe",
+      "phone": "+27660340946",
+      "email": "cebolakhemlambo05@gmail.com",
+      "street": "eaitwr",
+      "suburb": "euy5h",
+      "city": "8rt4wugj",
+      "province": "KwaZulu-Natal",
+      "postalCode": "3546",
+      "instructions": ""
+    },
+    "createdAt": "2026-08-12T17:04:09.174Z"
+  }
+]

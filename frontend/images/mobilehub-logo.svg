@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 100" role="img" aria-labelledby="title desc">
+<title>MobileHub</title><desc>MobileHub logo</desc>
+<rect x="2" y="2" width="316" height="96" rx="24" fill="#111827"/>
+<rect x="18" y="14" width="52" height="72" rx="12" fill="none" stroke="#ffffff" stroke-width="6"/>
+<circle cx="44" cy="76" r="3" fill="#ffffff"/>
+<path d="M29 35h30M29 47h22" stroke="#ffffff" stroke-width="5" stroke-linecap="round"/>
+<text x="88" y="63" font-family="Arial,Helvetica,sans-serif" font-size="36" font-weight="700" fill="#ffffff">MobileHub</text>
+</svg>
