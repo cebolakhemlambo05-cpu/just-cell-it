@@ -1,6 +1,6 @@
 (function () {
   const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-  const configured = window.MOBILEHUB_API_URL || '';
+  const configured = window.MOBILEHUB_API_URL || 'https://just-cell-it-5.onrender.com';
   const bases = [
     configured,
     isLocal ? 'http://localhost:3002' : window.location.origin,
